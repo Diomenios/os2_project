@@ -28,6 +28,9 @@ int classement;
 int status;
 
 };
+
+ int randomF();
+
 int numeroVoiture[20] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77, 11, 18, 23, 33, 3, 27, 63, 88};
 
 int main()
@@ -38,13 +41,12 @@ int main()
     return 0;
 }
 
-int randomF(void){
+int randomF(){
     int i = 0;
-    int j = 0;
-    for(j = 0; j<10;j++){
-        i = rand()%5;
-        printf("%d ",i);
+    for(int j = 0; j<10;j++){
 
+        i = rand()%5;
+        printf("%d \n",i);
 
     }
 
@@ -52,5 +54,3 @@ int randomF(void){
 
 
 }
-
-

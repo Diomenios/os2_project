@@ -3,16 +3,21 @@
 	<stdio.h>
 	<stdlib.h>
 
-1569770026 source:d:\bureau\projet c\os2_project\main.c
+1569779590 source:d:\bureau\projet c\os2_project\main.c
 	<stdio.h>
 	<stdlib.h>
 	"secteurs.h"
 	"voiture.h"
 	"circuit.h"
+	<time.h>
+	<unistd.h>
+	<string.h>
+	<windows.h>
+	<sys/types.h>
 
-1569770824 d:\bureau\projet c\os2_project\secteurs.h
+1569777192 d:\bureau\projet c\os2_project\secteurs.h
 
 1569768306 d:\bureau\projet c\os2_project\voiture.h
 
-1569770730 d:\bureau\projet c\os2_project\circuit.h
+1569779887 d:\bureau\projet c\os2_project\circuit.h
 

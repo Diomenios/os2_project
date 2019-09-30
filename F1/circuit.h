@@ -1,8 +1,6 @@
 #ifndef CIRCUIT_H_INCLUDED
 #define CIRCUIT_H_INCLUDED
-#include "secteurs.h"
-#include <windows.h>
-#include <time.h>
+
 #define true 1
 #define false 0
 
@@ -22,15 +20,15 @@ int tour(){
     int s = 0;//temps pour un secteur
     int i=0;//compteur boucle
 
-    while (i<9 && crash != true){
+    while (i<3 && crash != true){
 
         s = secteur(300,500);
         Sleep(s*10);// endormir le processus pendant s*10 milliseconde
+
         if(s == 0){//test si il y a un crash
             crash = true;
             printf("crash sur le secteur %d\n",i);
         }
-
 
         total += s;//ajout au temps total de la voiture dans le circuit
         i++;
@@ -40,7 +38,6 @@ int tour(){
     int min = total%3600/60;//minutes
     int sec = total%60;//secondes
     printf("temps total est de %dmin %ds\n",min, sec);
-    return 0;
 }
 int essaiLibre(int chrono){
     int total=0;//temps total

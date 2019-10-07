@@ -47,6 +47,12 @@ int crash(){//methode pour determiner si il y a un crash
   if(my_rand(1,5000) <= 49){
         return true;
   }
-
   return false;
+}
+int stand(){
+    if(my_rand(1,10) >= 1){
+        return true;
+  }
+  return false;
+
 }

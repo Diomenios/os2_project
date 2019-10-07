@@ -19,7 +19,7 @@ int main()
 {
     srand(time(NULL));//initialisation PRNG
     printf("Bienvenue sur le projet C du groupe TEL (Tom-Emile-Louis)!\n");
-    essaiLibre(600);//appel de la méthode tour
+    essaiLibre(5400);//appel de la méthode tour
     return 0;
 }
 

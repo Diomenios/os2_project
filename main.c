@@ -20,11 +20,11 @@ char *shm;
 *  Le premier paramètre permet de savoir le nombre de kilomètre que fait la partie S1
 *  Le deuxième paramètre permet de savoir le nombre de kilomètre que fait la partie S2
 *  Le troisième paramètre permet de savoir le nombre de kilomètre
-e que fait la partie S3
+e que fait la parti e S3
 */
 int main(int argc, char *argv[]){
 
-char msg[] = "first message";
+char msg[] = "Bonjour Olivier, je suis passé par la MP";
 
 int semid = shmget(IPC_PRIVATE, strlen(msg), IPC_CREAT | 0666);
 

@@ -6,6 +6,9 @@
 
 
 // les différentes constantes de temps du circuit
+#define TRUE 1
+#define FALSE 0
+
 #define P1 5400;
 #define P2 5400;
 #define P3 3600;

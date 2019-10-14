@@ -1,11 +1,6 @@
 #ifndef CIRCUIT_H_INCLUDED
 #define CIRCUIT_H_INCLUDED
 
-#define true 1
-#define false 0
-
-
-
 #endif // CIRCUIT_H_INCLUDED
 /**
 *
@@ -17,17 +12,17 @@ int tour(){
 
     int total=0;//temps total
     int tour = 0;
-    int crash = false;//boolean pour le crash de la voiture
+    int crash = FALSE;//boolean pour le crash de la voiture
     int s = 0;//temps pour un secteur
     int i = 1;
 
-    while (i<=3 && crash != true){
+    while (i<=3 && crash != TRUE){
 
         s = secteur(100,250);
         Sleep(s*10);// endormir le processus pendant s*10 milliseconde
 
         if(s == 0){//test si il y a un crash
-            crash = true;
+            crash = TRUE;
             //printf("crash sur le secteur %d\n",i);
             //TODO: recuperation des donnes de la voiture
             return 0;
@@ -55,6 +50,7 @@ int tour(){
 
     return total;
 }
+
 void essaiLibreQuali(int chrono){
     int temps1 = 0;
     int temps2 = 0;

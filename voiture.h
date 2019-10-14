@@ -22,5 +22,3 @@ double temp3Total;
 int status;
 
 };
-
-int numVoiture[20] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77, 11, 18, 23, 33, 3, 27, 63, 88};

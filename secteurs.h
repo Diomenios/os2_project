@@ -11,7 +11,7 @@
 
 /**
 *@param int min, int max
-*min doit être plus grand que max
+*min doit ï¿½tre plus grand que max
 *@return int c
 *nombre generer de maniere pseudo aleatoire
 */
@@ -23,7 +23,7 @@ int my_rand(int min, int max){
 //temps d'un secteur
 /**
 *@param int taille1, int taille2
-*taille1 doit être plus grand que taille2
+*taille1 doit ï¿½tre plus grand que taille2
 *@return int temp
 *temps que fait une voiture sur un secteur
 */
@@ -31,7 +31,7 @@ int secteur(int taille1, int taille2){
 
     int temp = 0;
 
-    if(crash()== false){//si il n'y a pas de crash
+    if(crash()== FALSE){//si il n'y a pas de crash
         temp = my_rand(taille1, taille2);//Generation du nombre aleatoire
         return temp;
     }
@@ -45,17 +45,16 @@ int secteur(int taille1, int taille2){
 int crash(){//methode pour determiner si il y a un crash
 
   if(my_rand(1,5000) <= 49){
-        return true;
+        return TRUE;
   }
-  return false;
+  return FALSE;
 }
 
 int stand(){//passage au stand
 
     if(my_rand(1,10) >= 1){
-        return true;
+        return TRUE;
   }
-  return false;
+  return FALSE;
 
 }
-

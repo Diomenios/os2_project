@@ -21,7 +21,26 @@
 
 1569779887 d:\bureau\projet c\os2_project\circuit.h
 
-1569888262 source:d:\bureau\projet c\os2_project\f1\main.c
+1570472330 source:d:\bureau\projet c\os2_project\f1\main.c
+	<stdio.h>
+	<stdlib.h>
+	"secteurs.h"
+	"voiture.h"
+	"circuit.h"
+	"affichage.h"
+	<time.h>
+	<unistd.h>
+	<string.h>
+	<windows.h>
+	<sys/types.h>
+
+1570464816 d:\bureau\projet c\os2_project\f1\secteurs.h
+
+1570464816 d:\bureau\projet c\os2_project\f1\voiture.h
+
+1570472561 d:\bureau\projet c\os2_project\f1\circuit.h
+
+1570442524 source:c:\users\he201745\desktop\projet os\os2_project\f1\main.c
 	<stdio.h>
 	<stdlib.h>
 	"secteurs.h"
@@ -33,9 +52,11 @@
 	<windows.h>
 	<sys/types.h>
 
-1569888262 d:\bureau\projet c\os2_project\f1\secteurs.h
+1570443502 c:\users\he201745\desktop\projet os\os2_project\f1\secteurs.h
 
-1569888260 d:\bureau\projet c\os2_project\f1\voiture.h
+1570440966 c:\users\he201745\desktop\projet os\os2_project\f1\voiture.h
 
-1569888262 d:\bureau\projet c\os2_project\f1\circuit.h
+1570443371 c:\users\he201745\desktop\projet os\os2_project\f1\circuit.h
+
+1570472330 d:\bureau\projet c\os2_project\f1\affichage.h
 

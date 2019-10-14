@@ -7,25 +7,17 @@
 typedef struct voiture {
 int id;
 
-double temp1Secteur1;
-double temp1Secteur2;
-double temp1Secteur3;
+double tempSecteur1;
+double tempSecteur2;
+double tempSecteur3;
 
 double temp1Total;
 
-double temp2Secteur1;
-double temp2Secteur2;
-double temp2Secteur3;
-
 double temp2Total;
-
-double temp3Secteur1;
-double temp3Secteur2;
-double temp3Secteur3;
 
 double temp3Total;
 
-int classement;
+//int classement;
 
 int status;
 

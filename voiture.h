@@ -21,4 +21,7 @@ double temp3Total;
 
 int status;
 
+int classement;
+int ready;
+
 };

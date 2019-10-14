@@ -7,6 +7,7 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include "constantes.h"
+#include "saveLoad.h"
 //#include <windows.h>
 
 #define true 1  //permettre l'utilisation du terme "true"

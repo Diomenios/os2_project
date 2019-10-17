@@ -1,10 +1,6 @@
 #ifndef SECTEURS_H_INCLUDED
 #define SECTEURS_H_INCLUDED
-#define true 1
-#define false 0
 
-
-#endif // SECTEURS_H_INCLUDED
 
 // generer un PRNG entre Min & Max
 
@@ -15,10 +11,7 @@
 *@return int c
 *nombre generer de maniere pseudo aleatoire
 */
-int my_rand(int min, int max){
-  int c = rand()%(max-min+1)+min;//creation du nombre aleatoire
-  return c;
-}
+int my_rand(int min, int max);
 
 //temps d'un secteur
 /**
@@ -27,34 +20,15 @@ int my_rand(int min, int max){
 *@return int temp
 *temps que fait une voiture sur un secteur
 */
-int secteur(int taille1, int taille2){
-
-    int temp = 0;
-
-    if(crash()== FALSE){//si il n'y a pas de crash
-        temp = my_rand(taille1, taille2);//Generation du nombre aleatoire
-        return temp;
-    }
-    return temp;//si il y a un crash
-}
+int secteur(int taille1, int taille2);
 
 /**
 *@return int
 * return true(1) si il est plus petit que 49 sinon false(0)
 */
-int crash(){//methode pour determiner si il y a un crash
+int crash();
 
-  if(my_rand(1,5000) <= 49){
-        return TRUE;
-  }
-  return FALSE;
-}
+int stand();
 
-int stand(){//passage au stand
 
-    if(my_rand(1,10) >= 1){
-        return TRUE;
-  }
-  return FALSE;
-
-}
+#endif // SECTEURS_H_INCLUDED

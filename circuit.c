@@ -17,7 +17,6 @@
 *
 */
 int tour(voiture *maVoiture){
-
     int total=0;//temps total
     int tour = 0;
     int crash = FALSE;//boolean pour le crash de la voiture
@@ -33,7 +32,6 @@ int tour(voiture *maVoiture){
             crash = TRUE;
             //printf("crash sur le secteur %d\n",i);
             maVoiture->status = 0;
-            maVoiture->ready = 1;
             return 0;
         }
         if((i%2)==0){//si il passe dans le secteur 2
@@ -42,10 +40,11 @@ int tour(voiture *maVoiture){
         else if((i%3)==0){//si il passe dans le secteur 3
            // k.tempSecteur3=s;
            if(stand()){
-                maVoiture->status=1;
                 total += 15;
+                maVoiture->status=1;
                 //printf("passage au Stand: +15 seconde\n");
-                sleep(0.2);// endormir le processus pendant s*10 milliseconde
+                sleep(1);// endormir le processus pendant s*10 milliseconde
+                maVoiture->status=2;
            }
            maVoiture->tempSecteur3 = s;
         }
@@ -70,6 +69,11 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
         temps1 = tour(maVoiture);
         temps2 += temps1;
 
+        if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
+          maVoiture->meilleurTemps = temps1;
+          maVoiture->changeOrdre = TRUE;
+        }
+
         if(temps1==0){
             printf("retour au stand: crash\n");
             //TODO: recuperation des donnes de la voiture
@@ -83,6 +87,7 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
             j++;
         }
     }while(temps2<chrono && temps1 !=0);
+    maVoiture->ready = -1;
 }
 
 int Course(int tours, voiture *maVoiture){

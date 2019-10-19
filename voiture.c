@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <time.h>
 //#include <windows.h>
 #include "circuit.h"
 #include "secteurs.h"
@@ -20,6 +21,7 @@ void initVoiture();
 
 // Méthode principale : simule le fonctionnement d'une voiture de course
 int main(int argc, char* argv[]){
+  srand(time(NULL) ^ (getpid()<<16));
 
   printf("Mon nombre filiale est : %s\n", argv[2]);
   //initialisation des différentes variables
@@ -27,10 +29,25 @@ int main(int argc, char* argv[]){
   shm = (voiture*) shmat(atoi(argv[1]), NULL, 0);
   initVoiture();
 
-  sleep(3);
+  sleep(1);
   printf("essais en cours \n");
+  essaiLibreQuali(P1, &(shm[nombreFiliale]));
 
-  essaiLibreQuali(P1, &shm[nombreFiliale]);
+  while (shm[nombreFiliale].ready != TRUE) {
+    sleep(0.5);
+  }
+
+  essaiLibreQuali(P2, &shm[nombreFiliale]);
+
+  while (shm[nombreFiliale].ready != TRUE) {
+    sleep(0.5);
+  }
+
+  essaiLibreQuali(P3, &shm[nombreFiliale]);
+
+  while (shm[nombreFiliale].ready != TRUE) {
+    sleep(0.5);
+  }
 
   shm[nombreFiliale].status = -1;
 
@@ -42,17 +59,15 @@ int main(int argc, char* argv[]){
 void initVoiture(){
 
   shm[nombreFiliale].id = VOITURE_NUMBER[nombreFiliale];
-  printf("essais\n");
-  shm[nombreFiliale].tempSecteur1 = 0.0;
-  printf("essais\n");
-  shm[nombreFiliale].tempSecteur2 = 0.0;
-  printf("essais\n");
-  shm[nombreFiliale].tempSecteur3 = 0.0;
-  printf("essais\n");
-  shm[nombreFiliale].classement = nombreFiliale+1;
-  shm[nombreFiliale].status = 0;
-  shm[nombreFiliale].ready = TRUE;
+  shm[nombreFiliale].tempSecteur1 = 0;
+  shm[nombreFiliale].tempSecteur2 = 0;
+  shm[nombreFiliale].tempSecteur3 = 0;
+  shm[nombreFiliale].meilleurTemps = 0;
+  shm[nombreFiliale].tours = 1;
+  shm[nombreFiliale].status = 2;
+  shm[nombreFiliale].ready = 0;
+  shm[nombreFiliale].changeOrdre = FALSE;
 
-  printf("init fini id : %d, temps1 %f, temps2 %f, temps 3 : %f, classement : %d \n", shm[nombreFiliale].id, shm[nombreFiliale].tempSecteur1, shm[nombreFiliale].tempSecteur2, shm[nombreFiliale].tempSecteur3, shm[nombreFiliale].status);
+  printf("init fini id : %d, temps1 %d, temps2 %d, temps 3 : %d, classement : %d \n", shm[nombreFiliale].id, shm[nombreFiliale].tempSecteur1, shm[nombreFiliale].tempSecteur2, shm[nombreFiliale].tempSecteur3, shm[nombreFiliale].status);
 
 }

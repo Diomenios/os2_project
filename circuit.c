@@ -70,8 +70,12 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
         temps2 += temps1;
 
         if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
+          printf("%s\n", "mise à jour");
           maVoiture->meilleurTemps = temps1;
-          maVoiture->changeOrdre = TRUE;
+          if (!maVoiture->changeOrdre) {
+            maVoiture->changeOrdre = TRUE;
+          }
+
         }
 
         if(temps1==0){

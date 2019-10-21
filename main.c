@@ -9,16 +9,15 @@
 #include <math.h>
 #include "constantes.h"
 #include "voiture.h"
+#include "affichage.h"
 //#include <windows.h>
 
 void initFork(int incr,char *semid) ;
 void readMemory(int nombreEnfants);
 int mycmp(const void *s1, const void *s2);
-void afficherTableauScore();
-char* creationCelluleNombre(int tailleCellule, int input, int sizeInput);
-char* decodageStatus(int status);
 
 voiture *shm;
+voiture copieMemoire[NOMBRE_DE_VOITURE];
 voiture *classement[NOMBRE_DE_VOITURE];
 tuple meilleursTemps[3];
 
@@ -31,13 +30,13 @@ int main(int argc, char *argv[]){
   //qsort(tab, sizeof(tab)/sizeof(*tab), sizeof(*tab), mycmp);
 
   //initialisation de la mémoire partagée + rattachement
-  int semid = shmget(IPC_PRIVATE, sizeof(voiture)*2, IPC_CREAT | 0666);
+  int semid = shmget(IPC_PRIVATE, sizeof(voiture)*NOMBRE_DE_VOITURE, IPC_CREAT | 0666);
   shm = (voiture *) shmat(semid, NULL, 0);
 
-  //initialise la liste de pointeur vers la structure en mémoire partagée
-  //permettra de plus tard faire un tri pour les classer selon leur temps le plus rapide
+  memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
+
   for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
-    classement[i] = &shm[i];
+    classement[i] = &copieMemoire[i];
   }
 
   //convertis le semid en char* pour le passer aux fils
@@ -59,15 +58,23 @@ int main(int argc, char *argv[]){
   exit(EXIT_SUCCESS);
 }
 
+/**********************************  fonctions auxiliaires  ******************************************/
+
 void readMemory(int nombreEnfants){
+
+  memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
+  int sorting = FALSE;
+
   for (int i = 0; i < nombreEnfants; i++) {
-    if(shm[i].changeOrdre){
-      shm[i].changeOrdre = FALSE;
-      qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycmp);
+    if(copieMemoire[i].changeOrdre){
+      copieMemoire[i].changeOrdre = FALSE;
+      sorting = TRUE;
     }
   }
-
-  afficherTableauScore();
+  if (sorting) {
+    qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycmp);
+  }
+  afficherTableauScore(classement);
   return;
 }
 
@@ -87,100 +94,10 @@ int mycmp(const void *s1, const void *s2) {
     const voiture *l = *(const voiture **)s1;
     const voiture *r = *(const voiture **)s2;
 
-    double mtl = l->meilleurTemps;
-    double mtr = r->meilleurTemps;
+    int mtl = l->meilleurTemps;
+    int mtr = r->meilleurTemps;
 
     if (mtl < mtr) return -1;
     if (mtl > mtr) return 1;
     return 0;
 }
-
-void afficherTableauScore(){
-  char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|-------|";
-  char titreTableau[] =  "| Période     |  S1   |  S2   |  S3   | status | tour | temps |";
-
-  printf("%s\n", lineSeparator);
-  printf("%s\n", titreTableau);
-  printf("%s\n", lineSeparator);
-  for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
-    char *recup;
-    char *ligne = calloc(1, strlen(lineSeparator));
-    strcat(ligne, "| voiture");
-
-    recup = creationCelluleNombre(6, classement[i]->id,(int)floor(log10(classement[i]->id))+1);
-    strcat(ligne, recup);
-    free(recup);
-    recup = NULL;
-
-    recup = creationCelluleNombre(8 , classement[i]->tempSecteur1, (int)floor(log10(classement[i]->tempSecteur1))+1);
-    strcat(ligne, recup);
-    free(recup);
-
-    recup = creationCelluleNombre(8, classement[i]->tempSecteur2, (int)floor(log10(classement[i]->tempSecteur2 ))+1);
-    strcat(ligne, recup);
-    free(recup);
-
-    recup = creationCelluleNombre(8, classement[i]->tempSecteur3, (int)floor(log10(classement[i]->tempSecteur3))+1);
-    strcat(ligne, recup);
-    free(recup);
-
-    strcat(ligne, decodageStatus(classement[i]->status));
-
-    recup = creationCelluleNombre(7, classement[i]->tours, (int)floor(log10(classement[i]->tours))+1);
-    strcat(ligne, recup);
-    free(recup);
-
-    recup = creationCelluleNombre(8, classement[i]->meilleurTemps, (int)floor(log10(classement[i]->meilleurTemps))+1);
-    strcat(ligne, recup);
-    free(recup);
-
-    printf("%s\n", ligne);
-    printf("%s\n", lineSeparator);
-
-    free(ligne);
-  }
-
-}
-
-//Attention cette méthode nécessite d'utiliser un free car elle est le résultat d'un malloc
-char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
-  if (input == 0) {
-    char *cell = malloc(tailleCellule);
-    strcat(cell, " NA");
-    for (int i = 0; i < tailleCellule-4; i++) {
-      strcat(cell," ");
-    }
-    strcat(cell, "|");
-
-    return cell;
-  }
-  else{
-    char pass[sizeInput];
-    sprintf(pass, "%d", input);
-
-    char *cell = malloc(tailleCellule);
-    strcat(cell, " ");
-    strcat(cell, pass);
-    for (int i = 0; i < (tailleCellule-sizeInput-2); i++) {
-      strcat(cell," ");
-    }
-    strcat(cell, "|");
-
-    return cell;
-  }
-}
-
-char* decodageStatus(int status){
-  if (status == 0) {
-    return " OUT    |";
-  }
-  if (status == 1) {
-    return " P      |";
-  }
-  else{
-    return " GO     |";
-  }
-}
-
-// TODO : à faire en dernier
-// public void dynamicTableGenerator(String title)

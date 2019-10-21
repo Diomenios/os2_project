@@ -50,7 +50,7 @@ int crash(){//methode pour determiner si il y a un crash
 
 int stand(){//passage au stand
 
-    if(my_rand(1,10) >= 1){
+    if(my_rand(1,20) >= 1){//1 chance sur 10 d'aller au stand
         return TRUE;
   }
   return FALSE;

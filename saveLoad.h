@@ -4,22 +4,103 @@
 
 
 #endif // SAVELOAD_H_INCLUDED
-void save()//Module de sauvegarde de partie
+void saveEssai(int p, int voiture)//Module de sauvegarde de partie
 {
+	char bufferTemps[50];
+	char bufferID[3];
     int i;
     //sauvegarde de fichier
     FILE* fichier = NULL;//création du fichier text // initialisation du pointeur sur le fichier
-    fichier = fopen("F1save.txt", "w");//nom du fichier
+    fichier = fopen("F1_essai"+p+"_save.txt", "w");//nom du fichier
     if (fichier != NULL)
     {
         //écriture dans le fichier
-        for(i=0;i<15;i++)//réutilisation du "i" pour économie mémoire
+		fprintf("classement des meilleurs temps de la periode d'essai %d",p);
+        for(i=0;i<voiture;i++)//réutilisation du "i" pour économie mémoire
             {
-                fprintf(/*TODO: ECRIRE DANS LE FICHIER*/);
+				sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
+				sprintf(bufferID, "%d", classement[i]->id);
+                fprintf("%d : %d\n",bufferID, bufferTemps);
             }
         fclose(fichier);//fermeture du fichier
     }
 }
+void saveQuali(int p, int voiture)//Module de sauvegarde de partie
+{
+	char bufferTemps[50];
+	char bufferID[3];
+    int i;
+    //sauvegarde de fichier
+    FILE* fichier = NULL;//création du fichier text // initialisation du pointeur sur le fichier
+    fichier = fopen("F1_quali"+p+"_save.txt", "w");//nom du fichier
+    if (fichier != NULL)
+    {
+        //écriture dans le fichier
+		fprintf("classement des meilleurs temps de la periode de qualification %d",p);
+        for(i=0;i<voiture;i++)//réutilisation du "i" pour économie mémoire
+            {
+				sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
+				sprintf(bufferID, "%d", classement[i]->id);
+                fprintf("%d : %d\n",bufferID, bufferTemps);
+            }
+        fclose(fichier);//fermeture du fichier
+    }
+}
+void saveCourse(int voiture)//Module de sauvegarde de partie
+{
+    char bufferTemps[50];
+	char bufferID[3];
+    int i;
+    //sauvegarde de fichier
+    FILE* fichier = NULL;//création du fichier text // initialisation du pointeur sur le fichier
+    fichier = fopen("F1_course_save.txt", "w");//nom du fichier
+    if (fichier != NULL)
+    {
+        //écriture dans le fichier
+		fprintf("classement des meilleurs temps de la course\n");
+        for(i=0;i<voiture;i++)//réutilisation du "i" pour économie mémoire
+            {
+				sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
+				sprintf(bufferID, "%d", classement[i]->id);
+                fprintf("%d : %d\n",bufferID, bufferTemps);
+            }
+        fclose(fichier);//fermeture du fichier
+    }
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void Load()//Module pour Charger une partie
 {

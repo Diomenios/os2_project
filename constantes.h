@@ -7,7 +7,7 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 
 
 // les différentes constantes de temps du circuit
-#define NOMBRE_DE_VOITURE 2
+#define NOMBRE_DE_VOITURE 10
 
 #define TRUE 1
 #define FALSE 0

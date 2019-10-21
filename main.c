@@ -51,6 +51,7 @@ int main(int argc, char *argv[]){
   sleep(2);
 
   while (shm[0].status != -1 && shm[1].status != -1 ) {
+      system("clear");
       readMemory(2);
       sleep(1);
   }

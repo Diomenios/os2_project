@@ -4,7 +4,16 @@
 
 
 #endif // SAVELOAD_H_INCLUDED
-void saveEssai(int p, int voiture)//Module de sauvegarde de partie
+
+/**
+*@param Id du tour Essai, nombre de voiture, temps du tour d'essai
+*
+*Ecriture des résultats du tour d'essai dans un fichier .txt vierge,
+*
+*
+*/
+
+void saveEssai(int p, int voiture, int chrono)//Module de sauvegarde de partie
 {
 	char bufferTemps[50];
 	char bufferID[3];
@@ -15,7 +24,8 @@ void saveEssai(int p, int voiture)//Module de sauvegarde de partie
     if (fichier != NULL)
     {
         //écriture dans le fichier
-		fprintf("classement des meilleurs temps de la periode d'essai %d",p);
+		fprintf("classement des meilleurs temps de la periode d'essai %d\n",p);
+		fprintf("temps du tour d'essai %d\n",chrono);
         for(i=0;i<voiture;i++)//réutilisation du "i" pour économie mémoire
             {
 				sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
@@ -25,6 +35,14 @@ void saveEssai(int p, int voiture)//Module de sauvegarde de partie
         fclose(fichier);//fermeture du fichier
     }
 }
+
+/**
+*@param Id du tour Essai, nombre de voiture
+*
+*Ecriture des résultats de la sceance de qualif dans un fichier .txt vierge,
+*
+*
+*/
 void saveQuali(int p, int voiture)//Module de sauvegarde de partie
 {
 	char bufferTemps[50];
@@ -46,6 +64,13 @@ void saveQuali(int p, int voiture)//Module de sauvegarde de partie
         fclose(fichier);//fermeture du fichier
     }
 }
+/**
+*@param nombre de voiture
+*
+*Ecriture des résultats de la course dans un fichier .txt vierge,
+*
+*
+*/
 void saveCourse(int voiture)//Module de sauvegarde de partie
 {
     char bufferTemps[50];
@@ -66,103 +91,4 @@ void saveCourse(int voiture)//Module de sauvegarde de partie
             }
         fclose(fichier);//fermeture du fichier
     }
-}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void Load()//Module pour Charger une partie
-{
-    int choix;
-    int x;
-    int Nombre;
-    int Chiffre;
-    char nomFichier[]="F1save";
-    printf("voulez vous charger la derniere partie? 1 pour oui/0 pour non\n");
-    scanf("%d",&choix);
-    system("cls");
-    if(choix==1)
-        {//si choix oui ouverture du fichier .txt
-        strcat(nomFichier,".txt");//permet la selection du fichier de score
-        system("cls");
-        clearStdin();
-        FILE* fichier= NULL;// initialisation du pointeur sur le fichier
-        fichier = fopen(nomFichier, "r");//lecture du fichier
-
-        if(fichier != NULL)
-            {
-            for(x=0;x<16-1;x++)//passe dans toutes les \n du fichier pour obtenir les scores
-                {
-                tab[x].score=fgetc(fichier)-48;//fgetc est en ascii donc -48 pour avoir le premier chiffre de tab[x].score
-                Nombre=fgetc(fichier)-48;
-                if (Nombre>=0&&Nombre<=9)
-                    {
-                    tab[x].score = (tab[x].score)*10 + Nombre;//si caractere est un chiffre alors *10 pour le mettre en discaine et on l'affecte à tab[x].score
-
-                    Nombre=fgetc(fichier);
-                    }
-                if(tab[x].score==-29)
-                    {
-                    tab[x].score=-1;
-                    }
-                }
-
-                tab[x].score=fgetc(fichier)-48;//fgetc est en ascii donc -48 pour avoir le premier chiffre de tab[x].score
-                Nombre=fgetc(fichier)-48;
-                Chiffre=fgetc(fichier)-48;
-
-                if (Nombre>=0&&Nombre<=9)
-                    {
-                    if(Chiffre>=0&&Chiffre<=9)
-                        {
-                        tab[x].score = (tab[x].score)*100 + Nombre*10 + Chiffre;//si caractere est un chiffre alors *100 pour le mettre en centaine et on l'affecte à tab[x].score
-                        }
-                    else
-                        {
-                        tab[x].score = (tab[x].score)*10 + Nombre;//si caractere est un chiffre alors *10 pour le mettre en discaine et on l'affecte à tab[x].score
-                        }
-                    }
-
-            }
-        else
-            {//si erreur lors de l'ouverture du fichier, affichage d'une erreur
-            printf("impossible d'ouvrir le fichier des scores\n");
-            Load();//relancer le module
-            }
-        }
-    else if(choix=0)
-        {
-        afficher ();//utilisation du module d'initialisation du tableau de score
-        }
 }

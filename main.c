@@ -7,6 +7,7 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <math.h>
+#include "saveLoad.h"
 #include "constantes.h"
 #include "voiture.h"
 #include "affichage.h"

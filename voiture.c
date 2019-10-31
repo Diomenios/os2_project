@@ -12,6 +12,8 @@
 #include "voiture.h"
 #include "constantes.h"
 
+void attente();
+
 // définition des variables d'environnements
 int nombreFiliale;
 voiture *shm;
@@ -23,34 +25,27 @@ void initVoiture();
 int main(int argc, char* argv[]){
   srand(time(NULL) ^ (getpid()<<16));
 
-  printf("Mon nombre filiale est : %s\n", argv[2]);
   //initialisation des différentes variables
   nombreFiliale = atoi(argv[2]);
   shm = (voiture*) shmat(atoi(argv[1]), NULL, 0);
   initVoiture();
 
-  sleep(1);
-  printf("essais en cours \n");
   essaiLibreQuali(P1, &(shm[nombreFiliale]));
-
-  while (shm[nombreFiliale].ready != TRUE) {
-    sleep(0.5);
-  }
+  attente();
+  printf("%s\n", "debut essai-libre 2");
 
   essaiLibreQuali(P2, &shm[nombreFiliale]);
-
-  while (shm[nombreFiliale].ready != TRUE) {
-    sleep(0.5);
-  }
+  attente();
+  printf("%s\n", "debut essai-libre 3");
 
   essaiLibreQuali(P3, &shm[nombreFiliale]);
+  attente();
+  printf("%s\n", "fin essai-libre");
 
-  while (shm[nombreFiliale].ready != TRUE) {
-    sleep(0.5);
-  }
-
+  //fin de la course, le fils indique au père qu'il a terminé, puis il s'arrête
   shm[nombreFiliale].status = -1;
 
+  shmdt(shm);
   exit(EXIT_SUCCESS);
 }
 
@@ -70,4 +65,11 @@ void initVoiture(){
 
   printf("init fini id : %d, temps1 %d, temps2 %d, temps 3 : %d, classement : %d \n", shm[nombreFiliale].id, shm[nombreFiliale].tempSecteur1, shm[nombreFiliale].tempSecteur2, shm[nombreFiliale].tempSecteur3, shm[nombreFiliale].status);
 
+}
+
+void attente(){
+  while (shm[nombreFiliale].ready != TRUE) {
+    sleep(TEMPS_ATTENTE);
+  }
+  return
 }

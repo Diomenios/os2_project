@@ -47,12 +47,12 @@ int main(int argc, char *argv[]){
   //fork le nombre de fois spécifié
   initFork(NOMBRE_DE_VOITURE, pass);
 
-  sleep(2);
+  sleep(1);
 
   while (shm[0].status != -1 && shm[1].status != -1 ) {
       system("clear");
       readMemory(2);
-      sleep(1);
+      sleep(TEMPS_ATTENTE);
   }
 
   exit(EXIT_SUCCESS);
@@ -64,7 +64,7 @@ void readMemory(int nombreEnfants){
 
   memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
   int sorting = FALSE;
-
+  if()
   for (int i = 0; i < nombreEnfants; i++) {
     if(copieMemoire[i].changeOrdre){
       copieMemoire[i].changeOrdre = FALSE;

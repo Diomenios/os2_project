@@ -7,20 +7,25 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <math.h>
-#include "saveLoad.h"
 #include "constantes.h"
 #include "voiture.h"
 #include "affichage.h"
+#include "saveLoad.h"
 //#include <windows.h>
 
 void initFork(int incr,char *semid) ;
-void readMemory(int nombreEnfants);
+int readMemory(int nombreEnfants);
 int mycmp(const void *s1, const void *s2);
+void save(int compteur);
+int compare();
+int finish();
 
 voiture *shm;
 voiture copieMemoire[NOMBRE_DE_VOITURE];
 voiture *classement[NOMBRE_DE_VOITURE];
+int periode[] = {P1, P2, P3};
 tuple meilleursTemps[3];
+int compteurDeCourses;
 
 /*
 *  Le premier paramètre permet de savoir le nombre de kilomètre que fait la partie S1
@@ -29,6 +34,8 @@ tuple meilleursTemps[3];
 */
 int main(int argc, char *argv[]){
   //qsort(tab, sizeof(tab)/sizeof(*tab), sizeof(*tab), mycmp);
+
+  printf("%s %f\n", "temps d'attente : ", TEMPS_ATTENTE);
 
   //initialisation de la mémoire partagée + rattachement
   int semid = shmget(IPC_PRIVATE, sizeof(voiture)*NOMBRE_DE_VOITURE, IPC_CREAT | 0666);
@@ -50,10 +57,9 @@ int main(int argc, char *argv[]){
 
   sleep(1);
 
-  while (shm[0].status != -1 && shm[1].status != -1 ) {
-      system("clear");
-      readMemory(2);
-      sleep(TEMPS_ATTENTE);
+  compteurDeCourses = 1;
+  while (readMemory(NOMBRE_DE_VOITURE)) {
+      sleep(1);
   }
 
   exit(EXIT_SUCCESS);
@@ -61,22 +67,44 @@ int main(int argc, char *argv[]){
 
 /**********************************  fonctions auxiliaires  ******************************************/
 
-void readMemory(int nombreEnfants){
+int readMemory(int nombreEnfants){
 
   memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
   int sorting = FALSE;
-  if()
+  int saveStatus = TRUE;
+  int finishStatus = TRUE;
+
   for (int i = 0; i < nombreEnfants; i++) {
     if(copieMemoire[i].changeOrdre){
       copieMemoire[i].changeOrdre = FALSE;
       sorting = TRUE;
     }
+    if (saveStatus == TRUE && copieMemoire[i].ready != -1) {
+      saveStatus = FALSE;
+    }
+    if (finishStatus == TRUE && copieMemoire[i].status != -1) {
+      finishStatus = FALSE;
+    }
   }
   if (sorting) {
     qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycmp);
   }
-  afficherTableauScore(classement);
-  return;
+  afficherTableauScore(classement, compteurDeCourses);
+  if (saveStatus && finishStatus) {
+    save(compteurDeCourses);
+    return FALSE;
+  }
+  if (saveStatus) {
+    system("clear");
+    save(compteurDeCourses);
+    for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
+      printf("%s\n", "réveil");
+      shm[i].ready = TRUE;
+    }
+    compteurDeCourses++;
+    return TRUE;
+  }
+  return TRUE;
 }
 
 void initFork(int incr,char *semid){
@@ -101,4 +129,41 @@ int mycmp(const void *s1, const void *s2) {
     if (mtl < mtr) return -1;
     if (mtl > mtr) return 1;
     return 0;
+}
+
+//  TODO : Finir cette fonction
+void save(int compteur){
+  if (compteur == 7) {
+    /* course principale */
+  }
+  else if (compteur>3) {
+    /* qualification */
+  }
+  else{
+    //TODO : retirer le if
+    printf("%s\n", "j'ai sauvé");
+    sleep(2);
+    saveEssai(compteur, periode[compteur-1], classement);
+    if (compteur == 3) {
+      exit(EXIT_SUCCESS);
+    }
+  }
+}
+
+int compare(){
+  for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
+
+  }
+  printf("%s\n", "sauvagarde");
+  return TRUE;
+}
+
+int finish(){
+  for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
+    if (classement[i]->status != -1) {
+      return TRUE;
+    }
+  }
+  printf("%s\n", "fin du programme");
+  return FALSE;
 }

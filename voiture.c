@@ -14,21 +14,23 @@
 
 void attente();
 
-// définition des variables d'environnements
+// definition des variables d'environnements
 int nombreFiliale;
 voiture *shm;
-//définition des différentes méthodes
+//definition des differentes methodes
 
 void initVoiture();
 
-// Méthode principale : simule le fonctionnement d'une voiture de course
+// Methode principale : simule le fonctionnement d'une voiture de course
 int main(int argc, char* argv[]){
   srand(time(NULL) ^ (getpid()<<16));
 
-  //initialisation des différentes variables
+  //initialisation des differentes variables
   nombreFiliale = atoi(argv[2]);
   shm = (voiture*) shmat(atoi(argv[1]), NULL, 0);
   initVoiture();
+
+  /********************  Les periodes d'essais ********************************/
 
   essaiLibreQuali(P1, &(shm[nombreFiliale]));
   attente();
@@ -42,14 +44,20 @@ int main(int argc, char* argv[]){
   attente();
   printf("%s\n", "fin essai-libre");
 
-  //fin de la course, le fils indique au père qu'il a terminé, puis il s'arrête
+  /********************** Les periodes de qualification ***********************/
+
+  /************************** La course principale ****************************/
+
+
+  /*************************** Fin du programme *******************************/
+
   shm[nombreFiliale].status = -1;
 
   shmdt(shm);
   exit(EXIT_SUCCESS);
 }
 
-//permet d'accéder à la mémoire principale
+//permet d'acceder à la memoire principale
 
 void initVoiture(){
 
@@ -71,5 +79,7 @@ void attente(){
   while (shm[nombreFiliale].ready != TRUE) {
     sleep(TEMPS_ATTENTE);
   }
-  return
+  initVoiture();
+  printf("%s\n", "gogogo");
+  return;
 }

@@ -9,7 +9,7 @@
 
 /**
 *@param int min, int max
-*min doit �tre plus grand que max
+*min doit etre plus grand que max
 *@return int c
 *nombre generer de maniere pseudo aleatoire
 */
@@ -21,7 +21,7 @@ int my_rand(int min, int max){
 //temps d'un secteur
 /**
 *@param int taille1, int taille2
-*taille1 doit �tre plus grand que taille2
+*taille1 doit etre plus grand que taille2
 *@return int temp
 *temps que fait une voiture sur un secteur
 */

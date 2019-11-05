@@ -39,7 +39,7 @@ void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de
 
 							sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
 							sprintf(bufferID, "%d", classement[i]->id);
-              fprintf(fichier, "%s : %s\n",bufferID, bufferTemps);
+              fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
           }
       fclose(fichier);//fermeture du fichier
     }

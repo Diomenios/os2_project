@@ -7,10 +7,12 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <math.h>
+#include <semaphore.h>
 #include "constantes.h"
 #include "voiture.h"
 #include "affichage.h"
 #include "saveLoad.h"
+
 //#include <windows.h>
 
 void initFork(int incr,char *semid) ;
@@ -27,12 +29,21 @@ int periode[] = {P1, P2, P3};
 tuple meilleursTemps[3];
 int compteurDeCourses;
 
+
+sem_t * sem;//initialisation de la variable du semaphore
+//initialisation du semaphore
+
+
 /*
 *  Le premier paramètre permet de savoir le nombre de kilomètre que fait la partie S1
 *  Le deuxième paramètre permet de savoir le nombre de kilomètre que fait la partie S2
 *  Le troisième paramètre permet de savoir le nombre de kilomètre que fait la parti e S3
 */
 int main(int argc, char *argv[]){
+	sm_initialisation(NOMBRE_DE_VOITURE);
+	if(sem_init(sem,0,1)!=0){//si erreur d'initialisation de semaphore
+	exit(EXIT_FAILURE);
+	}
   //qsort(tab, sizeof(tab)/sizeof(*tab), sizeof(*tab), mycmp);
 
   printf("%s %f\n", "temps d'attente : ", TEMPS_ATTENTE);
@@ -61,15 +72,48 @@ int main(int argc, char *argv[]){
   while (readMemory(NOMBRE_DE_VOITURE)) {
       sleep(1);
   }
-
+  sm_destroy(NOMBRE_DE_VOITURE);
   exit(EXIT_SUCCESS);
 }
 
+/**********************************  fonctions Semaphore  ******************************************/
+
+void sm_initialisation(int nbr){
+	sem_t *tab_sem[nbr];
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_init(tab_sem[i],0,1)!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+void sm_wait(int nbr){
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_wait(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+void sm_post(int nbr){
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_post(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+void sm_destroy(int nbr){
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_destroy(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
 /**********************************  fonctions auxiliaires  ******************************************/
 
 int readMemory(int nombreEnfants){
-
+	
+  sm_wait(NOMBRE_DE_VOITURE);
   memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
+  sm_post(NOMBRE_DE_VOITURE);
   int sorting = FALSE;
   int saveStatus = TRUE;
   int finishStatus = TRUE;

@@ -7,4 +7,4 @@ voiture : voiture.c secteurs.c circuit.c
 			gcc -o voiture voiture.c circuit.c secteurs.c
 
 clean:
-				rm -rf main voiture
+				rm -rf main voiture *save.txt

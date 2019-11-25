@@ -1,5 +1,5 @@
 classement des meilleurs temps de la periode d'essai 2
-temps du tour d'essai 750
-7 : 353
-5 : 527
-99 : 544
+temps de la période d'essai : 750
+Voiture 99 : 464
+Voiture 5 : 483
+Voiture 7 : 555

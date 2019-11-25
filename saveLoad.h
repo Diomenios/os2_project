@@ -3,8 +3,9 @@
 #include "voiture.h"
 
 void saveEssai(int p, int chrono, voiture **classement);//Module de sauvegarde de partie
-void saveQuali(int p, voiture **classement);
+void saveQuali(tuple **classement);
 void saveCourse(voiture **classement);
+int *loading(char *file);
 
 #endif // SAVELOAD_H_INCLUDED
 

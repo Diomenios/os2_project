@@ -7,10 +7,12 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <math.h>
+#include <semaphore.h>
 #include "constantes.h"
 #include "voiture.h"
 #include "affichage.h"
 #include "saveLoad.h"
+
 //#include <windows.h>
 
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse);
@@ -27,6 +29,11 @@ voiture copieMemoire[NOMBRE_DE_VOITURE];
 voiture *classement[NOMBRE_DE_VOITURE];
 int periode[] = {P1, P2, P3};
 
+
+sem_t * sem;//initialisation de la variable du semaphore
+//initialisation du semaphore
+
+
 /*
 *   Le premier parametre permet de savoir le mode qu'on veut lancer :
 *   P1 == essai 1, P2 == essai 2, P3 == essai 3, Q == qualification, Course == course finale
@@ -35,8 +42,13 @@ int periode[] = {P1, P2, P3};
 *   Le quatrieme parametre permet de savoir le nombre de kilometre que fait la partie S3
 */
 int main(int argc, char *argv[]){
-  //TODO : retirer ce commentaire
+
   //qsort(tab, sizeof(tab)/sizeof(*tab), sizeof(*tab), mycmp);
+	sm_initialisation(NOMBRE_DE_VOITURE);
+	if(sem_init(sem,0,1)!=0){//si erreur d'initialisation de semaphore
+	exit(EXIT_FAILURE);
+
+	}
 
   int typeDeCourse = modeCourse(argv[1]);
   if (typeDeCourse == -1) {
@@ -103,13 +115,47 @@ int main(int argc, char *argv[]){
   }
 
   shmdt(shm);
+  sm_destroy(NOMBRE_DE_VOITURE);
   exit(EXIT_SUCCESS);
 }
 
+/**********************************  fonctions Semaphore  ******************************************/
+
+void sm_initialisation(int nbr){
+	sem_t *tab_sem[nbr];
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_init(tab_sem[i],0,1)!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+void sm_wait(int nbr){
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_wait(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+void sm_post(int nbr){
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_post(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+void sm_destroy(int nbr){
+	for(int i = 0; i < nbr -1 ;i++){
+		if(sem_destroy(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+			exit(EXIT_FAILURE);
+		}
+	}
+}
 /**********************************  fonctions auxiliaires  ******************************************/
 
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse){
+  sm_wait(NOMBRE_DE_VOITURE);
   memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
+  sm_post(NOMBRE_DE_VOITURE);
   int sorting = FALSE;
   int saveStatus = TRUE;
 
@@ -137,6 +183,7 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse){
 
 /*******************  QUALIF  *****************************/
 
+//TODO mettre le sémaphore
 int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size){
   int voiture_en_course;
   int sorting = FALSE;

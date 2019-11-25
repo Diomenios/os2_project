@@ -16,7 +16,8 @@
 *
 *
 */
-int tour(voiture *maVoiture){
+int tour(voiture *maVoiture, sem_t *sem){
+	
     int total=0;//temps total
     int tour = 0;
     int crash = FALSE;//boolean pour le crash de la voiture
@@ -31,7 +32,9 @@ int tour(voiture *maVoiture){
         if(s == 0){//test si il y a un crash
             crash = TRUE;
             //printf("crash sur le secteur %d\n",i);
+			sem_wait(sem);
             maVoiture->status = 0;
+			sem_post(sem);
             return 0;
         }
         if((i%2)==0){//si il passe dans le secteur 2
@@ -60,18 +63,21 @@ int tour(voiture *maVoiture){
     return total;
 }
 
-void essaiLibreQuali(int chrono, voiture *maVoiture){
+void essaiLibreQuali(int chrono, voiture *maVoiture, sem_t *sem){
     int temps1 = 0;
     int temps2 = 0;
     int j = 1;
     do{
         //TODO: recuperation des donnes de la voiture
-        temps1 = tour(maVoiture);
+		
+        temps1 = tour(maVoiture, sem);
         temps2 += temps1;
-
+		
         if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
           //printf("%s\n", "mise à jour");
+		  sem_wait(sem);
           maVoiture->meilleurTemps = temps1;
+		  sem_post(sem);
           if (!maVoiture->changeOrdre) {
             maVoiture->changeOrdre = TRUE;
           }

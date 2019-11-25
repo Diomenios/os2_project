@@ -3,15 +3,31 @@
 #include "voiture.h"
 #include <semaphore.h>
 
-int tour(voiture *maVoiture);
-void essaiLibreQuali(int chrono,voiture *maVoiture);
-int tourCourse(voiture *maVoiture);
-int Course(int tours, voiture *mavoiture);
-
-#endif // CIRCUIT_H_INCLUDED
 /**
-*
-*simule un tour dans un circuit
+*@param maVoiture
+*@param sem
 *
 *
 */
+int tour(voiture *maVoiture);
+
+/**
+*@param chrono
+*@param *maVoiture
+*@param *sem         Semaphore
+*
+*@return renvoie le temps total d'un tour
+*/
+void essaiLibreQuali(int chrono,voiture *maVoiture);
+
+int tourCourse(voiture *maVoiture);
+
+/**
+*@param *tours
+*@param *mavoiture
+*
+*
+*/
+void Course(int tours, voiture *mavoiture);
+
+#endif // CIRCUIT_H_INCLUDED

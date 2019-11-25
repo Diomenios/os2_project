@@ -14,19 +14,25 @@
 #include "saveLoad.h"
 
 //#include <windows.h>
-
+void sm_initialisation(int nbr);
+void sm_wait(int nbr);
+void sm_post(int nbr);
+void sm_destroy(int nbr);
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse);
 int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size);
-void initFork(int incr,char *semid, char *mode);
+int readCourseMemory(int nombreEnfants, voiture *shm);
+void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]);
 void save(int compteur);
 int modeCourse(char *argument_entrer);
 void redemarrerVoiture(tuple **classement, int nombreVoiture, int typeDeCourse, int offset);
 int mycmp(const void *s1, const void *s2);
 int mytuplecmp(const void *s1, const void *s2);
+int mycoursecmp(const void *s1, const void *s2);
 tuple * initTuple(voiture *local, voiture *memory);
 
 voiture copieMemoire[NOMBRE_DE_VOITURE];
 voiture *classement[NOMBRE_DE_VOITURE];
+static sem_t tabSem[NOMBRE_DE_VOITURE];
 int periode[] = {P1, P2, P3};
 
 
@@ -45,10 +51,7 @@ int main(int argc, char *argv[]){
 
   //qsort(tab, sizeof(tab)/sizeof(*tab), sizeof(*tab), mycmp);
 	sm_initialisation(NOMBRE_DE_VOITURE);
-	if(sem_init(sem,0,1)!=0){//si erreur d'initialisation de semaphore
-	exit(EXIT_FAILURE);
-
-	}
+  printf("%s\n", "init ok");
 
   int typeDeCourse = modeCourse(argv[1]);
   if (typeDeCourse == -1) {
@@ -74,7 +77,6 @@ int main(int argc, char *argv[]){
   sprintf(pass, "%d", semid);
 
   //fork le nombre de fois spécifié
-  initFork(NOMBRE_DE_VOITURE, pass, argv[1]);
 
   /****************************************************************************
   *                     gestion de la course en cours                         *
@@ -82,6 +84,7 @@ int main(int argc, char *argv[]){
 
   //le cas des courses d'essais 1, 2 ou 3
   if (typeDeCourse == 1 || typeDeCourse == 2 || typeDeCourse == 3) {
+    initFork(NOMBRE_DE_VOITURE, pass, argv[1], VOITURE_NUMBER);
     while (readMemory(NOMBRE_DE_VOITURE, shm, typeDeCourse)) {
       sleep(1);
     }
@@ -95,23 +98,33 @@ int main(int argc, char *argv[]){
       classementDuo[i]->local->id = i;
     }
     int size = sizeof(classementDuo);
+
+    initFork(NOMBRE_DE_VOITURE, pass, argv[1], VOITURE_NUMBER);
     while(readQualifMemory(NOMBRE_DE_VOITURE, shm, &typeDeCourse, classementDuo, size)){
       sleep(1);
     }
+
     for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
       free(classementDuo[i]);
     }
   }
   //le cas des courses finales
   else {
-    /*while (readMemory(NOMBRE_DE_VOITURE, shm, typeDeCourse)) {
-      sleep(1);
-    }*/
     int *listeVoiture = loading("F1_quali_save.txt");
-    printf("%s\n", "lecture ok");
-    for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
-      printf("la voiture n° %d aura l'id : %d\n", i+1, listeVoiture[i]);
+    if (*listeVoiture == -1) {
+      printf("%s\n", "le fichier de sauvegarde n'existe pas !");
+      shmdt(shm);
+      sm_destroy(NOMBRE_DE_VOITURE);
+      exit(EXIT_FAILURE);
     }
+    initFork(NOMBRE_DE_VOITURE, pass, argv[1], listeVoiture);
+    printf("%s\n", "lecture ok");
+
+    while (readCourseMemory(NOMBRE_DE_VOITURE, shm)) {
+      sleep(1);
+    }
+    free(listeVoiture);
+		save(typeDeCourse);
   }
 
   shmdt(shm);
@@ -122,37 +135,37 @@ int main(int argc, char *argv[]){
 /**********************************  fonctions Semaphore  ******************************************/
 
 void sm_initialisation(int nbr){
-	sem_t *tab_sem[nbr];
-	for(int i = 0; i < nbr -1 ;i++){
-		if(sem_init(tab_sem[i],0,1)!=0){//si erreur d'initialisation de semaphore
+	for(int i = 0; i < nbr ;i++){
+		if(sem_init(&tabSem[i],0,1)!=0){//si erreur d'initialisation de semaphore
 			exit(EXIT_FAILURE);
 		}
 	}
 }
 void sm_wait(int nbr){
-	for(int i = 0; i < nbr -1 ;i++){
-		if(sem_wait(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+	for(int i = 0; i < nbr ;i++){
+		if(sem_wait(&tabSem[i])!=0){//si erreur d'initialisation de semaphore
 			exit(EXIT_FAILURE);
 		}
 	}
 }
 void sm_post(int nbr){
-	for(int i = 0; i < nbr -1 ;i++){
-		if(sem_post(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+	for(int i = 0; i < nbr ;i++){
+		if(sem_post(&tabSem[i])!=0){//si erreur d'initialisation de semaphore
 			exit(EXIT_FAILURE);
 		}
 	}
 }
 void sm_destroy(int nbr){
-	for(int i = 0; i < nbr -1 ;i++){
-		if(sem_destroy(tab_sem[i])!=0){//si erreur d'initialisation de semaphore
+	for(int i = 0; i < nbr ;i++){
+		if(sem_destroy(&tabSem[i])!=0){//si erreur d'initialisation de semaphore
 			exit(EXIT_FAILURE);
 		}
 	}
 }
 /**********************************  fonctions auxiliaires  ******************************************/
-
+//TODO mettre le sémaphore
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse){
+  typeDeCourse = 1;
   sm_wait(NOMBRE_DE_VOITURE);
   memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
   sm_post(NOMBRE_DE_VOITURE);
@@ -222,8 +235,6 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
   }
   else{
     voiture_en_course = 3;
-    printf("%s\n", "on est en Q3");
-    sleep(1);
   }
 
   tuple *voiture_qualif[voiture_en_course];
@@ -239,7 +250,7 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
 
   if (saveStatus && *typeDeCourse == 6) {
     system("clear");
-    printf("%s\n", "save qualif");
+    printf("%s\n", "sauvegarde des qualifications");
     saveQuali(classementDuo);
     return FALSE;
   }
@@ -252,13 +263,50 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
   return TRUE;
 }
 
-void initFork(int incr,char *semid, char *mode){
+/*******************************  COURSE  *************************************/
+//TODO mettre le sémaphore
+int readCourseMemory(int nombreEnfants, voiture *shm){
+  sm_wait(NOMBRE_DE_VOITURE);
+  memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
+  sm_post(NOMBRE_DE_VOITURE);
+  int sorting = FALSE;
+  int saveStatus = TRUE;
+
+  for (int i = 0; i < nombreEnfants; i++) {
+    if(copieMemoire[i].changeOrdre){
+      copieMemoire[i].changeOrdre = FALSE;
+      sorting = TRUE;
+    }
+    if (saveStatus == TRUE && copieMemoire[i].ready != -1) {
+      saveStatus = FALSE;
+    }
+  }
+
+  if (sorting) {
+    qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycoursecmp);
+  }
+  afficherTableauScoreCourse(classement, 7);
+
+  if (saveStatus) {
+    system("clear");
+    return FALSE;
+  }
+  return TRUE;
+}
+
+
+void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]){
 
   for (int i = 0; i < incr; i++) {
+		printf("%s\n", "fork");
     if (fork() == 0) {
-      char pass[sizeof(i)];
+      char pass[3];
+      char id[3];
+
       sprintf(pass, "%d", i);
-      char *voiture[]= {"./voiture",semid,pass,mode,NULL};
+      sprintf(id, "%d", numeroVoiture[i]);
+
+      char *voiture[]= {"./voiture",semid,pass,mode,id,NULL};
       execvp(voiture[0], voiture);
     }
   }
@@ -348,6 +396,18 @@ int mytuplecmp(const void *s1, const void *s2){
   if (mtl < mtr) return -1;
   if (mtl > mtr) return 1;
   return 0;
+}
+
+int mycoursecmp(const void *s1, const void *s2) {
+    const voiture *l = *(const voiture **)s1;
+    const voiture *r = *(const voiture **)s2;
+
+    int mtl = l->tempsTotal;
+    int mtr = r->tempsTotal;
+
+    if (mtl < mtr) return -1;
+    if (mtl > mtr) return 1;
+    return 0;
 }
 
 tuple * initTuple(voiture *local, voiture *memory){

@@ -16,23 +16,26 @@
 int nombreFiliale;
 
 //definition des differentes methodes
-void initVoiture(int stat, int read, voiture *shm);
-void attenteQuali(voiture *shm);
+void initVoiture(int stat, int read, int id, voiture *shm);
+void attenteQuali(voiture *shm, int id);
 
 // Methode principale : simule le fonctionnement d'une voiture de course
 int main(int argc, char* argv[]){
   srand(time(NULL) ^ (getpid()<<16));
 
+  sem_t *sem;
   voiture *shm;
   //initialisation des differentes variables
   nombreFiliale = atoi(argv[2]);
+  int id = atoi(argv[4]);
+
   shm = (voiture*) shmat(atoi(argv[1]), NULL, 0);
-  initVoiture(2, 0, shm);
+  initVoiture(2, 0, id, shm);
 
 /********************  Les periodes d'essais ********************************/
 
   if (strcmp(argv[3], "P1") == 0) {
-    essaiLibreQuali(P1, &(shm[nombreFiliale]));
+    essaiLibreQuali(P1, &shm[nombreFiliale]);
   }
   else if (strcmp(argv[3], "P2") == 0) {
     essaiLibreQuali(P2, &shm[nombreFiliale]);
@@ -44,19 +47,19 @@ int main(int argc, char* argv[]){
 /********************** Les periodes de qualification ***********************/
 
   else if (strcmp(argv[3], "Q") == 0) {
-    essaiLibreQuali(Q1, &(shm[nombreFiliale]));
-    attenteQuali(shm);
+    essaiLibreQuali(Q1, &shm[nombreFiliale]);
+    attenteQuali(shm, id);
 
-    essaiLibreQuali(Q2, &(shm[nombreFiliale]));
-    attenteQuali(shm);
+    essaiLibreQuali(Q2, &shm[nombreFiliale]);
+    attenteQuali(shm, id);
 
-    essaiLibreQuali(Q3, &(shm[nombreFiliale]));
+    essaiLibreQuali(Q3, &shm[nombreFiliale]);
   }
 
 /************************** La course principale ****************************/
 
   else{
-
+    Course(TOURS_COURSE, &shm[nombreFiliale]);
   }
 
   /*************************** Fin du programme *******************************/
@@ -69,13 +72,14 @@ int main(int argc, char* argv[]){
 
 //permet d'acceder à la memoire principale
 
-void initVoiture(int stat, int read, voiture *shm){
+void initVoiture(int stat, int read, int id, voiture *shm){
 
-  shm[nombreFiliale].id = VOITURE_NUMBER[nombreFiliale];
+  shm[nombreFiliale].id = id;
   shm[nombreFiliale].tempSecteur1 = 0;
   shm[nombreFiliale].tempSecteur2 = 0;
   shm[nombreFiliale].tempSecteur3 = 0;
   shm[nombreFiliale].meilleurTemps = 0;
+  shm[nombreFiliale].tempsTotal = 0;
   shm[nombreFiliale].tours = 1;
   shm[nombreFiliale].status = stat;
   shm[nombreFiliale].ready = read;
@@ -85,18 +89,18 @@ void initVoiture(int stat, int read, voiture *shm){
 
 }
 
-void attenteQuali(voiture *shm){
+void attenteQuali(voiture *shm, int id){
   while (shm[nombreFiliale].ready == -1) {
     sleep(TEMPS_ATTENTE);
   }
   if (shm[nombreFiliale].status == -1) {
-    initVoiture(-1, -1, shm);
+    initVoiture(-1, -1, id, shm);
     shmdt(shm);
     printf("%s\n", "fin des qualif");
     exit(EXIT_SUCCESS);
   }
   else{
-    initVoiture(2, 0, shm);
+    initVoiture(2, 0, id, shm);
     printf("%s\n", "gogogo");
   }
   return;

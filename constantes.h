@@ -21,6 +21,7 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 #define TEMPS_COURSE 7200
 #define TEMPS_ATTENTE 0.5
 #define MEMORY_KEY 98888
+#define TOURS_COURSE 5
 
 
 #endif

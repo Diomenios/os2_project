@@ -109,7 +109,7 @@ void saveCourse(voiture **classement)//Module de sauvegarde de partie
 		fprintf(fichier, "classement des meilleurs temps de la course\n");
         for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
             {
-				sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
+				sprintf(bufferTemps, "%d", classement[i]->tempsTotal);
 				sprintf(bufferID, "%d", classement[i]->id);
                 fprintf(fichier, "%s : %s²\n",bufferID, bufferTemps);
             }
@@ -133,33 +133,24 @@ int *loading(char *file){
 
 	char *loop = buffer;
 	int compteur = 0;
-	printf("%s\n", "boucle");
 	while ( *loop != '\0') {
-		printf("%s\n", "start loop");
 		if (*loop == '<') {
-			printf("%s\n", "start of end detect");
 			if (*(loop+sizeof(char)) =='>') {
-				printf("%s\n", "it's start");
 				loop +=2*sizeof(char);
 			}
 			else if (*(loop+sizeof(char)) =='/' && *(loop+2*sizeof(char)) =='>') {
-				printf("%s\n", "end detect");
 				break;
 			}
 			else{
-				printf("%s\n", "error");
 			}
 		}
 		else{
-			printf("%s\n", "number found");
 			char loopBuffer[5] = "";
 			int j = 0;
 			while (*loop != ',' && *loop != '<') {
-				printf("%s %c\n", "loop", *loop);
 				loopBuffer[j] = *loop;
 				j++;
 				loop += sizeof(char);
-				sleep(1);
 			}
 			printf("le number est : %d\n", atoi(loopBuffer));
 			voitureNombre[compteur] = atoi(loopBuffer);
@@ -171,17 +162,3 @@ int *loading(char *file){
 	}
 	return voitureNombre;
 }
-
-/*char *concatBuffer(char *first, int secund, char *third){
-	char *bufferSaveName = (char *) calloc();
-	char number[2];
-
-	sprintf(number, "%d", p);
-
-  strcpy(bufferSaveName, "F1_quali");
-  strcat(bufferSaveName, number);
-  strcat(bufferSaveName, "_save.txt");
-
-
-
-}*/

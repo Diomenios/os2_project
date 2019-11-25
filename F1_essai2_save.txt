@@ -1,5 +1,11 @@
 classement des meilleurs temps de la periode d'essai 2
 temps de la période d'essai : 750
-Voiture 99 : 464
-Voiture 5 : 483
-Voiture 7 : 555
+Voiture 16 : 456
+Voiture 8 : 462
+Voiture 55 : 465
+Voiture 4 : 472
+Voiture 99 : 479
+Voiture 7 : 486
+Voiture 20 : 493
+Voiture 5 : 526
+Voiture 10 : 548

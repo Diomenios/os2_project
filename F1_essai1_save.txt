@@ -1,11 +1,11 @@
 classement des meilleurs temps de la periode d'essai 1
 temps de la période d'essai : 1000
-Voiture 16 : 425
-Voiture 4 : 439
-Voiture 8 : 448
-Voiture 55 : 459
-Voiture 5 : 496
-Voiture 99 : 533
-Voiture 20 : 542
-Voiture 7 : 550
-Voiture 10 : 577
+Voiture 55 : 396
+Voiture 4 : 427
+Voiture 16 : 442
+Voiture 7 : 464
+Voiture 8 : 471
+Voiture 99 : 494
+Voiture 20 : 533
+Voiture 10 : 539
+Voiture 5 : 563

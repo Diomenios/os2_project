@@ -9,6 +9,7 @@ int tempSecteur2;
 int tempSecteur3;
 
 int meilleurTemps;
+int tempsTotal;
 
 int tours;
 

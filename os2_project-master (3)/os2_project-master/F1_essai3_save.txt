@@ -1,0 +1,5 @@
+classement des meilleurs temps de la periode d'essai 3
+temps du tour d'essai 500
+7 : 519
+99 : 554
+5 : 560

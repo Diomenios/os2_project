@@ -1,0 +1,5 @@
+classement des meilleurs temps de la periode d'essai 1
+temps du tour d'essai 1000
+5 : 458
+99 : 544
+7 : 650

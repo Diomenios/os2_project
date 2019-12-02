@@ -10,15 +10,23 @@
 */
 void afficherTableauScore(voiture *classement[], int manche);
 
-/**
+/* Fonction d'affichage pour les qualifications : permet de creer puis d'afficher
+*         le tableau dans le terminal a l'aide d'une serie de concatenantions
+*
 *@param tuple *classement[] un pointeur vers un tableau de voiture triees en memoire partagee et locale
 *@param int manche          un numero indiquant la partie de la serie de course dans laquelle
 *                           on est
-* fait afficher dans la console le classement et des voitures et leur temps
 * N.B: tuple utilise pour gestion des pointeurs entre les pointeurs de la memoire locale et partagee
 */
 void afficherTableauScoreQualif(tuple *classement[], int manche);
 
+/* Fonction d'affichage pour la course : permet de creer puis d'afficher
+*         le tableau dans le terminal a l'aide d'une serie de concatenantions
+*
+* @param  classement un pointeur vers un tableau de voiture triees
+* @param  manche     un numero indiquant la partie de la serie de course dans laquelle
+*                    on est
+*/
 void afficherTableauScoreCourse(voiture *classement[], int manche);
 
 /** Permet de generer et de remplir un case pour le tableau.

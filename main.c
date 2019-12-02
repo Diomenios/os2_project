@@ -84,6 +84,7 @@ int main(int argc, char *argv[]){
 
   //le cas des courses d'essais 1, 2 ou 3
   if (typeDeCourse == 1 || typeDeCourse == 2 || typeDeCourse == 3) {
+		gagnant pourSecteur[];
     initFork(NOMBRE_DE_VOITURE, pass, argv[1], VOITURE_NUMBER);
     while (readMemory(NOMBRE_DE_VOITURE, shm, typeDeCourse)) {
       sleep(1);
@@ -107,7 +108,7 @@ int main(int argc, char *argv[]){
     for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
       free(classementDuo[i]);
     }
-  }
+	}
   //le cas des courses finales
   else {
     int *listeVoiture = loading("F1_quali_save.txt");

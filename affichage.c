@@ -11,7 +11,7 @@
 #define LONGUEUR_DU_TABLEAU_COURSE 67
 
 
-/* Fonction principale : permet de creer puis d'afficher le tableau dans le
+/* Fonction d'affichage pour les course preliminaires : permet de creer puis d'afficher le tableau dans le
 *         terminal a l'aide d'une serie de concatenantions
 *
 * @param  classement un pointeur vers un tableau de voiture triees
@@ -80,6 +80,13 @@ void afficherTableauScore(voiture *classement[], int manche){
   free(buffer);  //libere la memoire occupee par le tableau car plus necessaire
 }
 
+/* Fonction d'affichage pour les qualifications : permet de creer puis d'afficher
+*         le tableau dans le terminal a l'aide d'une serie de concatenantions
+*
+* @param  classement un pointeur vers un tableau de tuples triees
+* @param  manche     un numero indiquant la partie de la serie de course dans laquelle
+*                    on est
+*/
 void afficherTableauScoreQualif(tuple *classement[], int manche){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|------------|\n";
@@ -141,6 +148,13 @@ void afficherTableauScoreQualif(tuple *classement[], int manche){
   free(buffer);  //libere la memoire occupee par le tableau car plus necessaire
 }
 
+/* Fonction d'affichage pour la course : permet de creer puis d'afficher
+*         le tableau dans le terminal a l'aide d'une serie de concatenantions
+*
+* @param  classement un pointeur vers un tableau de voiture triees
+* @param  manche     un numero indiquant la partie de la serie de course dans laquelle
+*                    on est
+*/
 void afficherTableauScoreCourse(voiture *classement[], int manche){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|---------|\n";

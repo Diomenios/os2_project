@@ -44,5 +44,9 @@ voiture *memory;
 voiture *local;
 }tuple;
 
+typedef struct gagnant{
+  int voitureId;
+  int voitureTemps;
+}gagnant;
 
 #endif // VOITURE_H_INCLUDED

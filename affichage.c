@@ -83,9 +83,10 @@ void afficherTableauScore(voiture *classement[], int manche){
 /* Fonction d'affichage pour les qualifications : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
 *
-* @param  classement un pointeur vers un tableau de tuples triees
-* @param  manche     un numero indiquant la partie de la serie de course dans laquelle
-*                    on est
+*@param tuple *classement[] un pointeur vers un tableau de voiture triees en memoire partagee et locale
+*@param int manche          un numero indiquant la partie de la serie de course dans laquelle
+*                           on est
+* N.B: tuple utilise pour gestion des pointeurs entre les pointeurs de la memoire locale et partagee
 */
 void afficherTableauScoreQualif(tuple *classement[], int manche){
   system("clear");
@@ -164,7 +165,7 @@ void afficherTableauScoreCourse(voiture *classement[], int manche){
   char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(NOMBRE_DE_VOITURE*2+5));
 
   strcpy(buffer, "|---------------------------------------------------------------|\n");
-  strcat(buffer, titrePeriode);
+strcat(buffer, titrePeriode);
   strcat(buffer, lineSeparator);
   strcat(buffer, titreTableau);
   strcat(buffer, lineSeparator);

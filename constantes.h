@@ -1,17 +1,23 @@
 #ifndef CONSTANTES_H_INCLUDED
 #define CONSTANTES_H_INCLUDED
 
-// const int *MEMORY_TABULAR_SEGMENT[7];
+/*******************************************************************************
+*                                                                              *
+*               ENSEMBLE DES CONSTANTES UTILES AU PROGRAMME                    *
+*                                                                              *
+*******************************************************************************/
+
 // les numéroes des voitures qui vont concourir
 static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77, 11, 18, 23, 33, 3, 27, 63, 88};
 
 
-// les différentes constantes de temps du circuit
+// definition de constantes propres a l'ensemble du programme
 #define NOMBRE_DE_VOITURE 9
 
 #define TRUE 1
 #define FALSE 0
 
+// utile si programme non-parametre
 #define P1 1000//5400
 #define P2 750 //5400
 #define P3 500 //3600
@@ -22,6 +28,5 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 #define TEMPS_ATTENTE 0.5
 #define MEMORY_KEY 98888
 #define TOURS_COURSE 5
-
 
 #endif

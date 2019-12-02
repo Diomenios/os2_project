@@ -34,6 +34,10 @@ int secteur(int taille1, int taille2);
 */
 int crash();
 
+/**
+*@return int
+* return true(1) si il est egal a 1 sinon false(0)
+*/
 int stand();
 
 

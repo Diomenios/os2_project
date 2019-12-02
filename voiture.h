@@ -25,7 +25,7 @@ int status;
   ready == 0 la voiture est en course
   ready == 1 la voiture est prete a partir
   ready == -1 la voiture est en attente
-  readi == 2 la voiture ne participe pas a la course
+  ready == 2 la voiture ne participe pas a la course
 */
 int ready;
 

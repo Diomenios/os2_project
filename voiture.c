@@ -71,7 +71,12 @@ int main(int argc, char* argv[]){
 }
 
 //permet d'acceder à la memoire principale
-
+/**
+*@param int stat, int read, int id, voiture *shm
+*
+* Initialisation d'une voiture avec toutes ses variables 
+* 
+*/
 void initVoiture(int stat, int read, int id, voiture *shm){
 
   shm[nombreFiliale].id = id;
@@ -89,17 +94,23 @@ void initVoiture(int stat, int read, int id, voiture *shm){
 
 }
 
+/**
+*@param int stat, int read, int id, voiture *shm
+*
+* changement d'etat de la voitures entre chaques etapes 
+* 
+*/
 void attenteQuali(voiture *shm, int id){
-  while (shm[nombreFiliale].ready == -1) {
-    sleep(TEMPS_ATTENTE);
+  while (shm[nombreFiliale].ready == -1) { //mise en attente de de la voirure en attendant les autres
+    sleep(TEMPS_ATTENTE); 
   }
-  if (shm[nombreFiliale].status == -1) {
+  if (shm[nombreFiliale].status == -1) {//fin du processus
     initVoiture(-1, -1, id, shm);
     shmdt(shm);
     printf("%s\n", "fin des qualif");
     exit(EXIT_SUCCESS);
   }
-  else{
+  else{	//mettre voiture dans l'etat course
     initVoiture(2, 0, id, shm);
     printf("%s\n", "gogogo");
   }

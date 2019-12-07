@@ -1,24 +1,27 @@
 #ifndef VOITURE_H_INCLUDED
 #define VOITURE_H_INCLUDED
-
+/*
+*Structure d'une voiture avec ses caracteristiques
+*
+*/
 typedef struct voiture {
-int id;
+	int id;
 
-int tempSecteur1;
-int tempSecteur2;
-int tempSecteur3;
+	int tempSecteur1;
+	int tempSecteur2;
+	int tempSecteur3;
 
-int meilleurTemps;
-int tempsTotal;
+	int meilleurTemps;
+	int tempsTotal;
 
-int tours;
+	int tours;
 
 /*  status == -1 => le processus est termine
     status == 0 => la voiture est crashze et est donc retiree de la course
     status == 1 => la voiture est au stand
     status == 2 => la voiture est dans la course !
 */
-int status;
+	int status;
 
 /*
   permet de synchroniser les voitures entre elles (grace au processus main)
@@ -27,26 +30,35 @@ int status;
   ready == -1 la voiture est en attente
   ready == 2 la voiture ne participe pas a la course
 */
-int ready;
+	int ready;
 
 /* permet de savoir si le temps totale de la voiture a ete mis à jour => car necessitera une reorganisation du classement
 *   changerOrdre == 0 (FALSE) le temps n'a pas ete mis a jour
 *   changerOrdre == 1 (TRUE) le temps a ete mis à jour
 */
-
-
-int changeOrdre;
+	int changeOrdre;
 }voiture;
 
+
+/*
+*
+*tuple = type de données composé servant à stocker une collection d'éléments
+* -> voiture
+*/
 typedef struct tuple{
 
 voiture *memory;
 voiture *local;
 }tuple;
 
+
 typedef struct gagnant{
   int voitureId;
   int voitureTemps;
 }gagnant;
-
+/*
+*
+*
+* 
+*/
 #endif // VOITURE_H_INCLUDED

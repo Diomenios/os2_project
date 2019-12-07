@@ -7,7 +7,6 @@
 *@param maVoiture
 *@param sem
 *
-*
 */
 int tour(voiture *maVoiture);
 
@@ -19,6 +18,7 @@ int tour(voiture *maVoiture);
 *@return renvoie le temps total d'un tour
 */
 void essaiLibreQuali(int chrono,voiture *maVoiture);
+
 
 int tourCourse(voiture *maVoiture);
 

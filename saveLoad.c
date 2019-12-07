@@ -14,8 +14,6 @@
 *@param Id du tour Essai, nombre de voiture, temps du tour d'essai
 *
 *Ecriture des resultats du tour d'essai dans un fichier .txt vierge,
-*
-*
 */
 void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de partie
 {
@@ -116,7 +114,13 @@ void saveCourse(voiture **classement)//Module de sauvegarde de partie
         fclose(fichier);//fermeture du fichier
     }
 }
-
+/**
+*@param nom du fichier
+*
+*chargement des resultats de la course depuis un fichier .txt deja rempli
+*
+*
+*/
 int *loading(char *file){
 
 	int *voitureNombre = (int *) malloc(sizeof(int)*NOMBRE_DE_VOITURE);

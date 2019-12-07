@@ -4,6 +4,10 @@
 
 // generer un PRNG entre Min & Max
 
+/*
+* ce header permet de faire appel aux fonctions du fichier secteurs.c
+*
+*/
 
 /**
 * nombre generer de maniere pseudo aleatoire

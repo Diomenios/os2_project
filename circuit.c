@@ -15,7 +15,6 @@
 *
 *simule un tour dans un circuit
 *
-*
 */
 //TODO : ajouter les semaphores
 int tour(voiture *maVoiture){

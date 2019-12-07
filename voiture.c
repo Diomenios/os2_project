@@ -12,6 +12,17 @@
 #include "voiture.h"
 #include "constantes.h"
 
+/*
+* 
+* Ce fichier .c est compile puis lance lorsqu'un processus fils est cree
+* il fait appel a des headers pour utiliser les fonctions de voitures, du circuits, ...
+* il simule une course selon les parametres entree avec une voiture 
+* 
+*/
+
+
+
+
 // definition des variables d'environnements
 int nombreFiliale;
 

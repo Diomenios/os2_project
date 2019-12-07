@@ -4,8 +4,12 @@
 #include "secteurs.h"
 
 
-// generer un PRNG entre Min & Max
-
+/*
+* generer un PRNG entre Min & Max
+* generer un secteur
+* generer un crash
+* generer un arret au stand
+*/
 
 /**
 * nombre generer de maniere pseudo aleatoire

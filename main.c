@@ -14,17 +14,17 @@
 #include "saveLoad.h"
 
 //#include <windows.h>
-void sm_initialisation(int nbr);
-void sm_wait(int nbr);
-void sm_post(int nbr);
-void sm_destroy(int nbr);
-int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse);
-int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size);
-int readCourseMemory(int nombreEnfants, voiture *shm);
-void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]);
-void save(int compteur);
-int modeCourse(char *argument_entrer);
-void redemarrerVoiture(tuple **classement, int nombreVoiture, int typeDeCourse, int offset);
+void sm_initialisation(int nbr);//creation des semaphore
+void sm_wait(int nbr);//lock les semphores
+void sm_post(int nbr);//unlock les semaphores
+void sm_destroy(int nbr);//fermeture des semaphores
+int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse);//lecture de la memoire
+int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size);//lecture en memoire de la qualif
+int readCourseMemory(int nombreEnfants, voiture *shm);//lecture en memoire de la course
+void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]);//initialise les forks
+void save(int compteur);//sauvegarde
+int modeCourse(char *argument_entrer);//lancer la course finale
+void redemarrerVoiture(tuple **classement, int nombreVoiture, int typeDeCourse, int offset);//relancer une voiture
 int mycmp(const void *s1, const void *s2);
 int mytuplecmp(const void *s1, const void *s2);
 int mycoursecmp(const void *s1, const void *s2);

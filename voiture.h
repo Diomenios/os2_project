@@ -5,19 +5,19 @@
 *
 */
 typedef struct voiture {
-	int id;
+	int id;							//numero de la voiture
 
 	int tempSecteur1;
 	int tempSecteur2;
 	int tempSecteur3;
 
-	int meilleurTemps;
-	int tempsTotal;
+	int meilleurTemps;	//meilleur temps pour un tour complet
+	int tempsTotal;			//temps de tous les tours effectue cumule
 
 	int tours;
 
 /*  status == -1 => le processus est termine
-    status == 0 => la voiture est crashze et est donc retiree de la course
+    status == 0 => la voiture est crashee et est donc retiree de la course
     status == 1 => la voiture est au stand
     status == 2 => la voiture est dans la course !
 */
@@ -42,8 +42,10 @@ typedef struct voiture {
 
 /*
 *
-*tuple = type de données composé servant à stocker une collection d'éléments
-* -> voiture
+*tuple = type de donnees compose servant à stocker une collection d'elements
+*
+* Permet de lier l'emplacement memoire local d'une voiture avec l'emplacement en
+* memoire partagee de sa copie
 */
 typedef struct tuple{
 
@@ -51,7 +53,11 @@ voiture *memory;
 voiture *local;
 }tuple;
 
-
+/*
+* permet de stocker le numéro d'une voiture ainsi que son temps.  Ici c'est pour garder
+* la voiture qui a fait le meilleur temps dans un secteur, ainsi que le temps qu'elle a fait
+*
+*/
 typedef struct gagnant{
   int voitureId;
   int voitureTemps;
@@ -59,6 +65,6 @@ typedef struct gagnant{
 /*
 *
 *
-* 
+*
 */
 #endif // VOITURE_H_INCLUDED

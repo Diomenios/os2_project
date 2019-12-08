@@ -3,29 +3,40 @@
 #include "voiture.h"
 #include <semaphore.h>
 
-/**
-*@param maVoiture
-*@param sem
+/** simule un tour dans un circuit pour les qualif et les essais
 *
+* @param voiture* mavoiture pointeur vers l'emplacement memoire de la voiture
+*                           simulee par le processus
+*
+* @return int               retourne le temps total qu'a pris la voiture pour faire
+*                           un tour
 */
 int tour(voiture *maVoiture);
 
-/**
-*@param chrono
-*@param *maVoiture
-*@param *sem         Semaphore
+/** simule le deroulement d'une session entiere d'une couse d'essais ou de qualification
 *
-*@return renvoie le temps total d'un tour
+* @param int chrono         le temps total que doit mettre au plus la voiture
+* @param voiture* mavoiture pointeur vers l'emplacement memoire de la voiture
+*                           simulee par le processus
+*
 */
 void essaiLibreQuali(int chrono,voiture *maVoiture);
 
-
+/** simule un tour dans un circuit pour la course principale
+*
+* @param voiture* mavoiture pointeur vers l'emplacement memoire de la voiture
+*                           simulee par le processus
+*
+* @return int               retourne le temps total qu'a pris la voiture pour faire
+*                           un tour
+*/
 int tourCourse(voiture *maVoiture);
 
-/**
-*@param *tours
-*@param *mavoiture
+/** simule le deroulement de l'entierete de la course
 *
+* @param int tours        le nombre de tours que comporte la course
+* @param voiture* mavoiture pointeur vers l'emplacement memoire de la voiture
+*                           simulee par le processus
 *
 */
 void Course(int tours, voiture *mavoiture);

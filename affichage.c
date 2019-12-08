@@ -11,14 +11,13 @@
 #define LONGUEUR_DU_TABLEAU_COURSE 67
 
 
-/* Fonction d'affichage pour les course preliminaires : permet de creer puis d'afficher le tableau dans le
+/** Fonction principale : permet de creer puis d'afficher le tableau dans le
 *         terminal a l'aide d'une serie de concatenantions
 *
-* @param  classement un pointeur vers un tableau de voiture triees
-* @param  manche     un numero indiquant la partie de la serie de course dans laquelle
-*                    on est
+* @param  voiture* classement[] un pointeur vers un tableau de voiture triees
+* @param  int manche            un numero indiquant la partie de la serie de course
+*                               dans laquelle on est
 */
-
 void afficherTableauScore(voiture *classement[], int manche){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|------------|\n";
@@ -83,7 +82,7 @@ void afficherTableauScore(voiture *classement[], int manche){
 /* Fonction d'affichage pour les qualifications : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
 *
-*@param tuple *classement[] un pointeur vers un tableau de voiture triees en memoire partagee et locale
+*@param tuple* classement[] un pointeur vers un tableau de voiture triees en memoire partagee et locale
 *@param int manche          un numero indiquant la partie de la serie de course dans laquelle
 *                           on est
 * N.B: tuple utilise pour gestion des pointeurs entre les pointeurs de la memoire locale et partagee
@@ -152,9 +151,9 @@ void afficherTableauScoreQualif(tuple *classement[], int manche){
 /* Fonction d'affichage pour la course : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
 *
-* @param  classement un pointeur vers un tableau de voiture triees
-* @param  manche     un numero indiquant la partie de la serie de course dans laquelle
-*                    on est
+* @param  voiture* classement[] un pointeur vers un tableau de voiture triees
+* @param  int manche            un numero indiquant la partie de la serie de course
+*                               dans laquelle on est
 */
 void afficherTableauScoreCourse(voiture *classement[], int manche){
   system("clear");
@@ -217,18 +216,17 @@ strcat(buffer, titrePeriode);
   free(buffer);  //libere la memoire occupee par le tableau car plus necessaire
 }
 
-/* Permet de generer et de remplir un case pour le tableau.
+/** Permet de generer et de remplir un case pour le tableau.
 *  ATTENTION : necessite de faire un free apres utilisation car on utilise un malloc
 *
-* @param  tailleCellule  la taille de la cellule qu'on desire creer
-* @param  input      nombre que l'on desire introduire dans la cellule
-*                    si le nombre == 0, on le remplacera par le string NA
-* @param  sizeInput  le nombre de chiffres constituant le parametre input
-* @return            renvoie un poiteur vers la zone memoire contenant notre cellule
+* @param  int tailleCellule la taille de la cellule qu'on desire creer
+* @param  int input         nombre que l'on desire introduire dans la cellule
+*                           si le nombre == 0, on le remplacera par le string NA
+* @param  int sizeInput     le nombre de chiffres constituant le parametre input
+* @return                   renvoie un poiteur vers la zone memoire contenant notre cellule
 */
-//Attention cette méthode nécessite d'utiliser un free car elle est le résultat d'un malloc
 char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
-  if (input == 0) {
+  if (input <= 0) {                                //rien a afficher
     char *cell = malloc(tailleCellule);
     strcat(cell, " NA");
     for (int i = 0; i < tailleCellule-4; i++) {
@@ -238,7 +236,7 @@ char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
 
     return cell;
   }
-  else{
+  else{                                            //on affiche l'input
     char pass[sizeInput];
     sprintf(pass, "%d", input);
 
@@ -254,11 +252,11 @@ char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
   }
 }
 
-/* Permet de choisir entre les differents etats possibles pour la voiture a savoir
+/** Permet de choisir entre les differents etats possibles pour la voiture a savoir
 *  OUT, P ou GO
 *
-* @param  status  le status de la voiture sous format numerique
-* @return         retourne une chaine de caracteres de bonne taille pour la cellule
+* @param  int status  le status de la voiture sous format numerique
+* @return             retourne une chaine de caracteres de bonne taille pour la cellule
 */
 char* decodageStatus(int status){
   if (status == 0) {
@@ -275,12 +273,12 @@ char* decodageStatus(int status){
   }
 }
 
-/* Permet de creer le titre du tableau.  Selectionne le titre correcte pour la
+/** Permet de creer le titre du tableau.  Selectionne le titre correcte pour la
 *  course en cours
 *
-* @param  manche  un nombre permettant de determiner la course dans laquelle on est.
-*                 Doit etre compris entre 1 et 7 inclus
-* @return         renvoie un poiteur vers la zone memoire contenant notre ligne
+* @param  int manche  un nombre permettant de determiner la course dans laquelle on est.
+*                     Doit etre compris entre 1 et 7 inclus
+* @return             renvoie un poiteur vers la zone memoire contenant notre ligne
 */
 char* creationManche(int manche){
   char *retour = (char*) malloc(sizeof(char)*LONGUEUR_DU_TABLEAU);

@@ -13,15 +13,12 @@
 #include "constantes.h"
 
 /*
-* 
+*
 * Ce fichier .c est compile puis lance lorsqu'un processus fils est cree
 * il fait appel a des headers pour utiliser les fonctions de voitures, du circuits, ...
-* il simule une course selon les parametres entree avec une voiture 
-* 
+* il simule une course selon les parametres entree avec une voiture
+*
 */
-
-
-
 
 // definition des variables d'environnements
 int nombreFiliale;
@@ -85,8 +82,8 @@ int main(int argc, char* argv[]){
 /**
 *@param int stat, int read, int id, voiture *shm
 *
-* Initialisation d'une voiture avec toutes ses variables 
-* 
+* Initialisation d'une voiture avec toutes ses variables
+*
 */
 void initVoiture(int stat, int read, int id, voiture *shm){
 
@@ -108,12 +105,12 @@ void initVoiture(int stat, int read, int id, voiture *shm){
 /**
 *@param int stat, int read, int id, voiture *shm
 *
-* changement d'etat de la voitures entre chaques etapes 
-* 
+* changement d'etat de la voitures entre chaques etapes
+*
 */
 void attenteQuali(voiture *shm, int id){
   while (shm[nombreFiliale].ready == -1) { //mise en attente de de la voirure en attendant les autres
-    sleep(TEMPS_ATTENTE); 
+    sleep(TEMPS_ATTENTE);
   }
   if (shm[nombreFiliale].status == -1) {//fin du processus
     initVoiture(-1, -1, id, shm);

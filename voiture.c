@@ -20,14 +20,29 @@
 *
 */
 
-// definition des variables d'environnements
+/******************  definition des variables globales  ***********************/
 int nombreFiliale;
 
-//definition des differentes methodes
+/****************  definition des methodes du processus  **********************/
 void initVoiture(int stat, int read, int id, voiture *shm);
 void attenteQuali(voiture *shm, int id);
 
-// Methode principale : simule le fonctionnement d'une voiture de course
+
+/** Methode principale : simule le fonctionnement d'une voiture de course
+*   divisee en 3 parties distinctes :
+*
+*     - les periodes d'essais
+*         lance la periode d'essais choisie grace au nombre passer en parametre
+*         au lancement du processus : 1 pour la periode 1, 2 pour la periode 2,
+*         3 pour la periode 3
+*     - les periodes de qualifications
+*         chiffre en parametre 4 : enchaine 3 sessions de qualifacation a la suite.
+*         la methode attenteQuali permet de synchroniser les processus pour
+*         les relancer a peu pres en meme temps
+*     - la course principle
+*         chiffre en parametre 7 : lance simplement la methode Course()
+*
+*/
 int main(int argc, char* argv[]){
   srand(time(NULL) ^ (getpid()<<16));
 
@@ -78,12 +93,16 @@ int main(int argc, char* argv[]){
   exit(EXIT_SUCCESS);
 }
 
-//permet d'acceder à la memoire principale
-/**
-*@param int stat, int read, int id, voiture *shm
+/** initialisation d'une voiture avec toutes ses variables
 *
-* Initialisation d'une voiture avec toutes ses variables
+* @param int stat     initialise la variable status de la voiture
+                      valeur autorisee {-1,0,1,2}
+* @param int read     initialise la variable ready de la voiture
+                      valeur autorisee {-1,0,1,2}
+* @param int id       initialise la variable id de la voiture
+* @param voiture* shm pointeur vers l'emplacement en memoire partagee de la voiture
 *
+* N.B. pour plus d'infos sur les differents parametre aller voir le fichier voiture.h
 */
 void initVoiture(int stat, int read, int id, voiture *shm){
 
@@ -97,15 +116,13 @@ void initVoiture(int stat, int read, int id, voiture *shm){
   shm[nombreFiliale].status = stat;
   shm[nombreFiliale].ready = read;
   shm[nombreFiliale].changeOrdre = FALSE;
-
-  printf("init fini id : %d, temps1 %d, temps2 %d, temps 3 : %d, classement : %d \n", shm[nombreFiliale].id, shm[nombreFiliale].tempSecteur1, shm[nombreFiliale].tempSecteur2, shm[nombreFiliale].tempSecteur3, shm[nombreFiliale].status);
-
 }
 
-/**
-*@param int stat, int read, int id, voiture *shm
+/**permet a la voiture d'attendre que le processus pere finisse de synchroniser les
+*  voitures avant de lancer une nouvelle periode de qualification
 *
-* changement d'etat de la voitures entre chaques etapes
+* @param voiture* shm pointeur vers l'emplacement en memoire partagee de la voiture
+* @param int id       numero de la voiture
 *
 */
 void attenteQuali(voiture *shm, int id){

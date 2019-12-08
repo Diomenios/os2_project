@@ -324,8 +324,6 @@ void save(int compteur){
     case 3:
       saveEssai(compteur, P3, classement);
       break;
-    case 6:
-      break;
     case 7:
       saveCourse(classement);
       break;

@@ -9,6 +9,7 @@
 #include "saveLoad.h"
 #include "voiture.h"
 #include "constantes.h"
+#include "helper.h"
 
 /** Ecriture des resultats du tour d'essai dans un fichier .txt vierge
 *
@@ -20,16 +21,16 @@
 */
 void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de partie
 {
-	char bufferTemps[50];
-  char bufferSaveName[50];
+	char* bufferTemps;
+	char bufferSaveName[50];
 	char bufferID[3];
 	char number[2];
 
-  sprintf(number, "%d", p);
+	sprintf(number, "%d", p);
 
-  strcpy(bufferSaveName, "F1_essai");
-  strcat(bufferSaveName, number);
-  strcat(bufferSaveName, "_save.txt");
+	strcpy(bufferSaveName, "F1_essai");
+	strcat(bufferSaveName, number);
+	strcat(bufferSaveName, "_save.txt");
 
     int i;
     //sauvegarde de fichier
@@ -42,10 +43,11 @@ void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de
 			fprintf(fichier, "temps de la période d'essai : %d\n",chrono);
       for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
           {
-
-							sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
-							sprintf(bufferID, "%d", classement[i]->id);
-              fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
+			
+			//sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
+			sprintf(bufferID, "%d", classement[i]->id);
+			bufferTemps = convertion(classement[i]->meilleurTemps)
+            fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
           }
       fclose(fichier);//fermeture du fichier
     }
@@ -61,32 +63,31 @@ void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de
 void saveQuali(tuple **classement)//Module de sauvegarde de partie
 {
 	char bufferTemps[50];
-  char bufferID[3];
+	char bufferID[3];
 
-  int i;
-  //sauvegarde de fichier
-  FILE* fichier = NULL;//creation du fichier text // initialisation du pointeur sur le fichier
-  fichier = fopen("F1_quali_save.txt", "w");//nom du fichier
-  if (fichier != NULL)
-  {
+	int i;
+	//sauvegarde de fichier
+	FILE* fichier = NULL;//creation du fichier text // initialisation du pointeur sur le fichier
+	fichier = fopen("F1_quali_save.txt", "w");//nom du fichier
+	if (fichier != NULL){
       //ecriture dans le fichier
-	fprintf(fichier, "<>", NULL);
+		fprintf(fichier, "<>", NULL);
 
-	for (int i = 0; i <NOMBRE_DE_VOITURE-1; i++) {
-		fprintf(fichier, "%d,", classement[i]->local->id);
+		for (int i = 0; i <NOMBRE_DE_VOITURE-1; i++) {
+			fprintf(fichier, "%d,", classement[i]->local->id);
+		}
+		fprintf(fichier, "%d", NOMBRE_DE_VOITURE-1);
+		fprintf(fichier, "</>\n", NULL);
+
+		fprintf(fichier, "classement des meilleurs temps des 3 période de qualification \n", NULL);
+		for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
+			{
+				sprintf(bufferTemps, "voiture n° : %d", classement[i]->local->id);
+				sprintf(bufferID, "%d", i+1);
+				fprintf(fichier, "%s : %s\n",bufferID, bufferTemps);
+			}
+		fclose(fichier);//fermeture du fichier
 	}
-	fprintf(fichier, "%d", NOMBRE_DE_VOITURE-1);
-	fprintf(fichier, "</>\n", NULL);
-
-	fprintf(fichier, "classement des meilleurs temps des 3 période de qualification \n", NULL);
-      for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
-          {
-			sprintf(bufferTemps, "voiture n° : %d", classement[i]->local->id);
-			sprintf(bufferID, "%d", i+1);
-              fprintf(fichier, "%s : %s\n",bufferID, bufferTemps);
-          }
-      fclose(fichier);//fermeture du fichier
-  }
 }
 
 /**ecriture des resultats de la course dans un fichier .txt vierge
@@ -105,8 +106,7 @@ void saveCourse(voiture **classement)//Module de sauvegarde de partie
     //sauvegarde de fichier
     FILE* fichier = NULL;//creation du fichier text // initialisation du pointeur sur le fichier
     fichier = fopen("F1_course_save.txt", "w");//nom du fichier
-    if (fichier != NULL)
-    {
+    if (fichier != NULL){
         //ecriture dans le fichier
 		fprintf(fichier, "classement des meilleurs temps de la course\n");
         for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire

@@ -12,6 +12,7 @@
 #include "voiture.h"
 #include "affichage.h"
 #include "saveLoad.h"
+#include "helper.h"
 
 /*************************  fonctions du programme  ***************************/
 
@@ -30,6 +31,7 @@ int mycmp(const void *s1, const void *s2);
 int mytuplecmp(const void *s1, const void *s2);
 int mycoursecmp(const void *s1, const void *s2);
 tuple * initTuple(voiture *local, voiture *memory);
+void initGagnant(gagnant *secteur);
 
 /*********************  variables globales du programme  **********************/
 
@@ -37,7 +39,7 @@ voiture copieMemoire[NOMBRE_DE_VOITURE];
 voiture *classement[NOMBRE_DE_VOITURE];
 static sem_t tabSem[NOMBRE_DE_VOITURE];
 int periode[] = {P1, P2, P3};
-
+gagnant meilleursSecteur[3];
 
 sem_t * sem;//initialisation de la variable du semaphore
 //initialisation du semaphore
@@ -52,7 +54,10 @@ sem_t * sem;//initialisation de la variable du semaphore
 *
 */
 int main(int argc, char *argv[]){
-
+	if (argc < 2) {
+		printf("%s\n", "veuillez passer au moins un paramètre au programme !");
+		exit(EXIT_SUCCESS);
+	}
 	//initialisation du tableau de semaphores
 	sm_initialisation(NOMBRE_DE_VOITURE);
   printf("%s\n", "init ok");
@@ -81,13 +86,13 @@ int main(int argc, char *argv[]){
   char pass[10];
   sprintf(pass, "%d", semid);
 
+	initGagnant(meilleursSecteur);
   /****************************************************************************
   *                     gestion de la course en cours                         *
   ****************************************************************************/
 
   									/********  course d'essais  *********/
   if (typeDeCourse == 1 || typeDeCourse == 2 || typeDeCourse == 3) {
-		gagnant pourSecteur[];
     initFork(NOMBRE_DE_VOITURE, pass, argv[1], VOITURE_NUMBER); // lance les voitures
     while (readMemory(NOMBRE_DE_VOITURE, shm, typeDeCourse)) {
       sleep(1);
@@ -118,8 +123,7 @@ int main(int argc, char *argv[]){
 		//lecture du fichier de sauvegarde cree lors des qualifications
     int *listeVoiture = loading("F1_quali_save.txt");
     if (*listeVoiture == -1) {					//verifie que le fichier existe
-      printf("%s\n", "le fichier de sauvegarde n'existe pas !  Veuillez d'abord lancer
-											les courses de qualification");
+      printf("%s\n", "le fichier de sauvegarde n'existe pas !  Veuillez d'abord lancer les courses de qualification");
       shmdt(shm);
       sm_destroy(NOMBRE_DE_VOITURE);
       exit(EXIT_FAILURE);
@@ -186,7 +190,8 @@ void sm_destroy(int nbr){
 */
 //TODO mettre le sémaphore
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse){
-  typeDeCourse = 1;
+
+	typeDeCourse = 1;
   sm_wait(NOMBRE_DE_VOITURE);
   memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
   sm_post(NOMBRE_DE_VOITURE);
@@ -198,6 +203,18 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse){
       copieMemoire[i].changeOrdre = FALSE;
       sorting = TRUE;
     }
+		if (copieMemoire[i].tempSecteur1 > 0 && copieMemoire[i].tempSecteur1 < meilleursSecteur[0].voitureTemps) {
+			meilleursSecteur[0].voitureTemps = copieMemoire[i].tempSecteur1;
+			meilleursSecteur[0].voitureId = copieMemoire[i].id;
+		}
+		if (copieMemoire[i].tempSecteur2 > 0 && copieMemoire[i].tempSecteur2 < meilleursSecteur[1].voitureTemps) {
+			meilleursSecteur[1].voitureTemps = copieMemoire[i].tempSecteur2;
+			meilleursSecteur[1].voitureId = copieMemoire[i].id;
+		}
+		if (copieMemoire[i].tempSecteur3 > 0 && copieMemoire[i].tempSecteur3 < meilleursSecteur[2].voitureTemps) {
+			meilleursSecteur[2].voitureTemps = copieMemoire[i].tempSecteur3;
+			meilleursSecteur[2].voitureId = copieMemoire[i].id;
+		}
     if (saveStatus == TRUE && copieMemoire[i].ready != -1) {
       saveStatus = FALSE;
     }
@@ -206,7 +223,7 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse){
   if (sorting) {
     qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycmp);
   }
-  afficherTableauScore(classement, typeDeCourse);
+  afficherTableauScore(classement, typeDeCourse, meilleursSecteur);
 
   if (saveStatus) {
     system("clear");
@@ -253,6 +270,18 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
       copieMemoire[i].changeOrdre = FALSE;
       sorting = TRUE;
     }
+		if (copieMemoire[i].tempSecteur1 > 0 && copieMemoire[i].tempSecteur1 < meilleursSecteur[0].voitureTemps) {
+			meilleursSecteur[0].voitureTemps = copieMemoire[i].tempSecteur1;
+			meilleursSecteur[0].voitureId = copieMemoire[i].id;
+		}
+		if (copieMemoire[i].tempSecteur2 > 0 && copieMemoire[i].tempSecteur2 < meilleursSecteur[1].voitureTemps) {
+			meilleursSecteur[1].voitureTemps = copieMemoire[i].tempSecteur2;
+			meilleursSecteur[1].voitureId = copieMemoire[i].id;
+		}
+		if (copieMemoire[i].tempSecteur3 > 0 && copieMemoire[i].tempSecteur3 < meilleursSecteur[2].voitureTemps) {
+			meilleursSecteur[2].voitureTemps = copieMemoire[i].tempSecteur3;
+			meilleursSecteur[2].voitureId = copieMemoire[i].id;
+		}
     if (saveStatus == TRUE && copieMemoire[i].ready != -1) {
       saveStatus = FALSE;
     }
@@ -263,7 +292,7 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
     if (sorting) {
       qsort(classementDuo, size/sizeof(*classementDuo), sizeof(*classementDuo), mytuplecmp);
     }
-    afficherTableauScoreQualif(classementDuo, *typeDeCourse);
+    afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur);
 
     if (saveStatus) {
       system("clear");
@@ -290,12 +319,12 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
   qsort(voiture_qualif, sizeof(voiture_qualif)/sizeof(*voiture_qualif), sizeof(*voiture_qualif), mytuplecmp);
   memcpy(classementDuo, voiture_qualif, sizeof(tuple*)*voiture_en_course);
 
-  afficherTableauScoreQualif(classementDuo, *typeDeCourse);
+  afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur);
 
   if (saveStatus && *typeDeCourse == 6) {
     system("clear");
     printf("%s\n", "sauvegarde des qualifications");
-    saveQuali(classementDuo);
+    saveQuali(classementDuo, meilleursSecteur);
     return FALSE;
   }
   if (saveStatus) {
@@ -334,6 +363,18 @@ int readCourseMemory(int nombreEnfants, voiture *shm){
       copieMemoire[i].changeOrdre = FALSE;
       sorting = TRUE;
     }
+		if (copieMemoire[i].tempSecteur1 > 0 && copieMemoire[i].tempSecteur1 < meilleursSecteur[0].voitureTemps) {
+			meilleursSecteur[0].voitureTemps = copieMemoire[i].tempSecteur1;
+			meilleursSecteur[0].voitureId = copieMemoire[i].id;
+		}
+		if (copieMemoire[i].tempSecteur2 > 0 && copieMemoire[i].tempSecteur2 < meilleursSecteur[1].voitureTemps) {
+			meilleursSecteur[1].voitureTemps = copieMemoire[i].tempSecteur2;
+			meilleursSecteur[1].voitureId = copieMemoire[i].id;
+		}
+		if (copieMemoire[i].tempSecteur3 > 0 && copieMemoire[i].tempSecteur3 < meilleursSecteur[2].voitureTemps) {
+			meilleursSecteur[2].voitureTemps = copieMemoire[i].tempSecteur3;
+			meilleursSecteur[2].voitureId = copieMemoire[i].id;
+		}
     if (saveStatus == TRUE && copieMemoire[i].ready != -1) {
       saveStatus = FALSE;
     }
@@ -342,7 +383,7 @@ int readCourseMemory(int nombreEnfants, voiture *shm){
   if (sorting) {
     qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycoursecmp);
   }
-  afficherTableauScoreCourse(classement, 7);
+  afficherTableauScoreCourse(classement, 7, meilleursSecteur);
 
   if (saveStatus) {
     system("clear");
@@ -389,16 +430,16 @@ void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]){
 void save(int compteur){
   switch (compteur){
     case 1:
-      saveEssai(compteur, P1, classement);
+      saveEssai(compteur, P1, classement, meilleursSecteur);
       break;
     case 2:
-      saveEssai(compteur, P2, classement);
+      saveEssai(compteur, P2, classement, meilleursSecteur);
       break;
     case 3:
-      saveEssai(compteur, P3, classement);
+      saveEssai(compteur, P3, classement, meilleursSecteur);
       break;
     case 7:
-      saveCourse(classement);
+      saveCourse(classement, meilleursSecteur);
       break;
     default :
       printf("%s\n", "erreur dans la sauvegarde");
@@ -547,4 +588,11 @@ tuple * initTuple(voiture *local, voiture *memory){
   new->memory = memory;
 
   return new;
+}
+
+void initGagnant(gagnant *secteur) {
+	for (int i = 0; i < 3; i++) {
+		secteur[i].voitureId = -1;
+		secteur[i].voitureTemps = (int)INFINITY;
+	}
 }

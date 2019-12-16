@@ -8,7 +8,7 @@
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
 */
-void afficherTableauScore(voiture *classement[], int manche);
+void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs);
 
 /* Fonction d'affichage pour les qualifications : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
@@ -18,7 +18,7 @@ void afficherTableauScore(voiture *classement[], int manche);
 *                           on est
 * N.B: tuple utilise pour gestion des pointeurs entre les pointeurs de la memoire locale et partagee
 */
-void afficherTableauScoreQualif(tuple *classement[], int manche);
+void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteurs);
 
 /* Fonction d'affichage pour la course : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
@@ -27,7 +27,7 @@ void afficherTableauScoreQualif(tuple *classement[], int manche);
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
 */
-void afficherTableauScoreCourse(voiture *classement[], int manche);
+void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs);
 
 /** Permet de generer et de remplir un case pour le tableau.
 *  ATTENTION : necessite de faire un free apres utilisation car on utilise un malloc

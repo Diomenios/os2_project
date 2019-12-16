@@ -16,7 +16,7 @@
 *															triees de l'essai venant de se terminer
 *
 */
-void saveEssai(int p, int chrono, voiture **classement);//Module de sauvegarde de partie
+void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs);//Module de sauvegarde de partie
 
 /** ecriture des resultats de la sceance de qualif dans un fichier .txt vierge
 *
@@ -25,7 +25,7 @@ void saveEssai(int p, int chrono, voiture **classement);//Module de sauvegarde d
 *														de se terminer
 *
 */
-void saveQuali(tuple **classement);
+void saveQuali(tuple **classement, gagnant *secteurs);
 
 /**ecriture des resultats de la course dans un fichier .txt vierge
 *
@@ -34,7 +34,7 @@ void saveQuali(tuple **classement);
 *
 *
 */
-void saveCourse(voiture **classement);
+void saveCourse(voiture **classement, gagnant *secteurs);
 
 /**chargement des resultats de la course depuis un fichier .txt deja rempli
 *

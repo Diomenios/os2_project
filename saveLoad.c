@@ -19,7 +19,7 @@
 *															triees de l'essai venant de se terminer
 *
 */
-void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de partie
+void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Module de sauvegarde de partie
 {
 	char* bufferTemps;
 	char bufferSaveName[50];
@@ -41,14 +41,15 @@ void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de
         //ecriture dans le fichier
 			fprintf(fichier, "classement des meilleurs temps de la periode d'essai %d\n",p);
 			fprintf(fichier, "temps de la période d'essai : %d\n",chrono);
-      for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
-          {
-			
-			//sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
-			sprintf(bufferID, "%d", classement[i]->id);
-			bufferTemps = convertion(classement[i]->meilleurTemps)
-            fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
-          }
+      for(i=0;i<NOMBRE_DE_VOITURE;i++){	//reutilisation du "i" pour economie memoire
+				//sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
+				sprintf(bufferID, "%d", classement[i]->id);
+				bufferTemps = convertion(classement[i]->meilleurTemps);
+        fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
+      }
+			for (int i = 0; i < 3; i++) {
+				fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
+			}
       fclose(fichier);//fermeture du fichier
     }
 }
@@ -60,7 +61,7 @@ void saveEssai(int p, int chrono, voiture **classement)//Module de sauvegarde de
 *														de se terminer
 *
 */
-void saveQuali(tuple **classement)//Module de sauvegarde de partie
+void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de partie
 {
 	char bufferTemps[50];
 	char bufferID[3];
@@ -80,12 +81,15 @@ void saveQuali(tuple **classement)//Module de sauvegarde de partie
 		fprintf(fichier, "</>\n", NULL);
 
 		fprintf(fichier, "classement des meilleurs temps des 3 période de qualification \n", NULL);
-		for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
-			{
+		for(i=0;i<NOMBRE_DE_VOITURE;i++){//reutilisation du "i" pour economie memoire
+
 				sprintf(bufferTemps, "voiture n° : %d", classement[i]->local->id);
 				sprintf(bufferID, "%d", i+1);
 				fprintf(fichier, "%s : %s\n",bufferID, bufferTemps);
-			}
+		}
+		for (int i = 0; i < 3; i++) {
+			fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
+		}
 		fclose(fichier);//fermeture du fichier
 	}
 }
@@ -97,7 +101,7 @@ void saveQuali(tuple **classement)//Module de sauvegarde de partie
 *
 *
 */
-void saveCourse(voiture **classement)//Module de sauvegarde de partie
+void saveCourse(voiture **classement, gagnant *secteurs)//Module de sauvegarde de partie
 {
 	char bufferTemps[50];
 	char bufferID[3];
@@ -108,13 +112,15 @@ void saveCourse(voiture **classement)//Module de sauvegarde de partie
     fichier = fopen("F1_course_save.txt", "w");//nom du fichier
     if (fichier != NULL){
         //ecriture dans le fichier
-		fprintf(fichier, "classement des meilleurs temps de la course\n");
-        for(i=0;i<NOMBRE_DE_VOITURE;i++)//reutilisation du "i" pour economie memoire
-            {
-				sprintf(bufferTemps, "%d", classement[i]->tempsTotal);
-				sprintf(bufferID, "%d", classement[i]->id);
-                fprintf(fichier, "%s : %s²\n",bufferID, bufferTemps);
-            }
+				fprintf(fichier, "classement des meilleurs temps de la course\n");
+        for(i=0;i<NOMBRE_DE_VOITURE;i++){//reutilisation du "i" pour economie memoire
+					sprintf(bufferTemps, "%d", classement[i]->tempsTotal);
+					sprintf(bufferID, "%d", classement[i]->id);
+          fprintf(fichier, "%s : %s²\n",bufferID, bufferTemps);
+        }
+				for (int i = 0; i < 3; i++) {
+					fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
+				}
         fclose(fichier);//fermeture du fichier
     }
 }

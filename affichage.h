@@ -44,9 +44,10 @@ char* creationCelluleNombre(int tailleCellule, int input, int sizeInput);
 *  OUT, P ou GO
 *
 * @param  int status  le status de la voiture sous format numerique
+* @param  int crash   booleen indiquant si une voiture est crashee
 * @return             retourne une chaine de caracteres de bonne taille pour la cellule
 */
-char* decodageStatus(int status);
+char* decodageStatus(int status, int crash);
 
 /** Permet de creer le titre du tableau.  Selectionne le titre correcte pour la
 *  course en cours

@@ -16,8 +16,8 @@ typedef struct voiture {
 
 	int tours;
 
-/*  status == -1 => le processus est termine
-    status == 0 => la voiture est crashee et est donc retiree de la course
+/*
+    status == 0 => le processus est termine
     status == 1 => la voiture est au stand
     status == 2 => la voiture est dans la course !
 */
@@ -37,6 +37,11 @@ typedef struct voiture {
 *   changerOrdre == 1 (TRUE) le temps a ete mis à jour
 */
 	int changeOrdre;
+	/* permet de savoir si la voiture est crashee
+	*   crash == 0 (FALSE) la voiture est toujours en course
+	*   crash == 1 (TRUE) la voiture est OUT
+	*/
+	int crash;
 }voiture;
 
 

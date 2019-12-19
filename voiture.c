@@ -6,7 +6,6 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <time.h>
-//#include <windows.h>
 #include "circuit.h"
 #include "secteurs.h"
 #include "voiture.h"
@@ -57,19 +56,19 @@ int main(int argc, char* argv[]){
 
 /********************  Les periodes d'essais ********************************/
 
-  if (strcmp(argv[3], "P1") == 0) {
+  if (strcmp(argv[3], "p  1") == 0) {
     essaiLibreQuali(P1, &shm[nombreFiliale]);
   }
-  else if (strcmp(argv[3], "P2") == 0) {
+  else if (strcmp(argv[3], "p2") == 0) {
     essaiLibreQuali(P2, &shm[nombreFiliale]);
   }
-  else if (strcmp(argv[3], "P3") == 0) {
+  else if (strcmp(argv[3], "p3") == 0) {
     essaiLibreQuali(P3, &shm[nombreFiliale]);
   }
 
 /********************** Les periodes de qualification ***********************/
 
-  else if (strcmp(argv[3], "Q") == 0) {
+  else if (strcmp(argv[3], "q") == 0) {
     essaiLibreQuali(Q1, &shm[nombreFiliale]);
     attenteQuali(shm, id);
 
@@ -87,7 +86,7 @@ int main(int argc, char* argv[]){
 
   /*************************** Fin du programme *******************************/
 
-  shm[nombreFiliale].status = -1;
+  shm[nombreFiliale].status = 0;
 
   shmdt(shm);
   exit(EXIT_SUCCESS);
@@ -116,6 +115,7 @@ void initVoiture(int stat, int read, int id, voiture *shm){
   shm[nombreFiliale].status = stat;
   shm[nombreFiliale].ready = read;
   shm[nombreFiliale].changeOrdre = FALSE;
+  shm[nombreFiliale].crash = FALSE;
 }
 
 /**permet a la voiture d'attendre que le processus pere finisse de synchroniser les
@@ -129,15 +129,13 @@ void attenteQuali(voiture *shm, int id){
   while (shm[nombreFiliale].ready == -1) { //mise en attente de de la voirure en attendant les autres
     sleep(TEMPS_ATTENTE);
   }
-  if (shm[nombreFiliale].status == -1) {//fin du processus
-    initVoiture(-1, -1, id, shm);
+  if (shm[nombreFiliale].status == 0 || shm[nombreFiliale].crash == TRUE) {//fin du processus
+    initVoiture(0, -1, id, shm);
     shmdt(shm);
-    printf("%s\n", "fin des qualif");
     exit(EXIT_SUCCESS);
   }
   else{	//mettre voiture dans l'etat course
     initVoiture(2, 0, id, shm);
-    printf("%s\n", "gogogo");
   }
   return;
 }

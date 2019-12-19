@@ -41,4 +41,6 @@ int tourCourse(voiture *maVoiture);
 */
 void Course(int tours, voiture *mavoiture);
 
+void refreshSecteurs(voiture *maVoiture);
+
 #endif // CIRCUIT_H_INCLUDED

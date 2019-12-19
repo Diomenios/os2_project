@@ -24,7 +24,7 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse);//lecture de l
 int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size);//lecture en memoire de la qualif
 int readCourseMemory(int nombreEnfants, voiture *shm);//lecture en memoire de la course
 void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]);//initialise les forks
-void save(int compteur);//sauvegarde
+void save(int compteur, int nombreEnfants);//sauvegarde
 int modeCourse(char *argument_entrer);//lancer la course finale
 void redemarrerVoiture(tuple **classement, int nombreVoiture, int typeDeCourse, int offset);//relancer une voiture
 int mycmp(const void *s1, const void *s2);
@@ -32,6 +32,8 @@ int mytuplecmp(const void *s1, const void *s2);
 int mycoursecmp(const void *s1, const void *s2);
 tuple * initTuple(voiture *local, voiture *memory);
 void initGagnant(gagnant *secteur);
+int totalCrashDetection(int nombreEnfants);
+int overCrashDetection(int nombreEnfants, int overCrash);
 
 /*********************  variables globales du programme  **********************/
 
@@ -97,7 +99,7 @@ int main(int argc, char *argv[]){
     while (readMemory(NOMBRE_DE_VOITURE, shm, typeDeCourse)) {
       sleep(1);
     }
-    save(typeDeCourse);
+    save(typeDeCourse, NOMBRE_DE_VOITURE);
   }
   								/********  courses de qualification  *********/
   else if (typeDeCourse == 4){
@@ -134,7 +136,7 @@ int main(int argc, char *argv[]){
       sleep(1);
     }
     free(listeVoiture);
-		save(typeDeCourse);
+		save(typeDeCourse, NOMBRE_DE_VOITURE);
   }
 
   shmdt(shm);
@@ -293,21 +295,26 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
       qsort(classementDuo, size/sizeof(*classementDuo), sizeof(*classementDuo), mytuplecmp);
     }
     afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur);
-
     if (saveStatus) {
       system("clear");
-      redemarrerVoiture(classementDuo, nombreEnfants, *typeDeCourse, 3);
-      *typeDeCourse +=1;
-      return TRUE;
+			if (overCrashDetection(nombreEnfants, QUALIF_OFFSET)) {
+				printf("%s\n", "Trop de voitures se sont crashée, les qualifications ne sont plus possibles !  aucunes données n'a été sauvegardée");
+				return FALSE;
+			}
+			else{
+				redemarrerVoiture(classementDuo, nombreEnfants, *typeDeCourse, QUALIF_OFFSET);
+	      *typeDeCourse +=1;
+	      return TRUE;
+			}
     }
     return TRUE;
   }
 /***            Q2 et Q3        ****/
   else if (*typeDeCourse == 5) {
-    voiture_en_course = 6;
+    voiture_en_course = nombreEnfants - QUALIF_OFFSET;
   }
   else{
-    voiture_en_course = 3;
+    voiture_en_course = nombreEnfants - 2*QUALIF_OFFSET;
   }
 
   tuple *voiture_qualif[voiture_en_course];
@@ -323,15 +330,25 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
 
   if (saveStatus && *typeDeCourse == 6) {
     system("clear");
-    printf("%s\n", "sauvegarde des qualifications");
-    saveQuali(classementDuo, meilleursSecteur);
+		if (overCrashDetection(voiture_en_course, QUALIF_OFFSET)) {
+			printf("%s\n", "Trop de voitures se sont crashée, les qualifications ne sont plus possibles !  aucunes données n'a été sauvegardée");
+		}
+		else{
+				saveQuali(classementDuo, meilleursSecteur);
+		}
     return FALSE;
   }
   if (saveStatus) {
     system("clear");
-    redemarrerVoiture(classementDuo, nombreEnfants, *typeDeCourse, 3);
-    *typeDeCourse +=1;
-    return TRUE;
+		if (overCrashDetection(voiture_en_course, QUALIF_OFFSET)) {
+			printf("%s\n", "Trop de voitures se sont crashée, les qualifications ne sont plus possibles !  aucunes données n'a été sauvegardée");
+			return FALSE;
+		}
+		else{
+			redemarrerVoiture(classementDuo, nombreEnfants, *typeDeCourse, QUALIF_OFFSET);
+	    *typeDeCourse +=1;
+	    return TRUE;
+		}
   }
   return TRUE;
 }
@@ -427,24 +444,29 @@ void initFork(int incr,char *semid, char *mode,const int numeroVoiture[]){
 *	@param int compteur le numero permettant de savoir le type de course que l'on a effectuee
 *
 */
-void save(int compteur){
-  switch (compteur){
-    case 1:
-      saveEssai(compteur, P1, classement, meilleursSecteur);
-      break;
-    case 2:
-      saveEssai(compteur, P2, classement, meilleursSecteur);
-      break;
-    case 3:
-      saveEssai(compteur, P3, classement, meilleursSecteur);
-      break;
-    case 7:
-      saveCourse(classement, meilleursSecteur);
-      break;
-    default :
-      printf("%s\n", "erreur dans la sauvegarde");
-      exit(EXIT_FAILURE);
-  }
+void save(int compteur, int nombreEnfants){
+	if (totalCrashDetection(nombreEnfants)) {
+		printf("%s\n", "toutes les voitures se sont crashée, la séance n'est donc pas valide !  aucunes données n'a été sauvegardée");
+	}
+	else{
+		switch (compteur){
+	    case 1:
+	      saveEssai(compteur, P1, classement, meilleursSecteur);
+	      break;
+	    case 2:
+	      saveEssai(compteur, P2, classement, meilleursSecteur);
+	      break;
+	    case 3:
+	      saveEssai(compteur, P3, classement, meilleursSecteur);
+	      break;
+	    case 7:
+	      saveCourse(classement, meilleursSecteur);
+	      break;
+	    default :
+	      printf("%s\n", "erreur dans la sauvegarde");
+	      exit(EXIT_FAILURE);
+	  }
+	}
 }
 
 /**convertis un string en un nombre permettant de determminer le type de course effectuee.
@@ -458,19 +480,19 @@ void save(int compteur){
 *
 */
 int modeCourse(char *argument_entrer){
-  if (strcmp(argument_entrer, "P1") == 0){
+  if (strcmp(argument_entrer, "p1") == 0){
     return 1;
   }
-  if (strcmp(argument_entrer, "P2") == 0){
+  if (strcmp(argument_entrer, "p2") == 0){
     return 2;
   }
-  if (strcmp(argument_entrer, "P3") == 0){
+  if (strcmp(argument_entrer, "p3") == 0){
     return 3;
   }
-  if (strcmp(argument_entrer, "Q") == 0){
+  if (strcmp(argument_entrer, "q") == 0){
     return 4;
   }
-  if (strcmp(argument_entrer, "Course") == 0){
+  if (strcmp(argument_entrer, "c") == 0){
     return 7;
   }
   else{
@@ -491,18 +513,26 @@ int modeCourse(char *argument_entrer){
 void redemarrerVoiture(tuple **classement, int nombreVoiture, int typeDeCourse, int offset){
   if (typeDeCourse == 4) {
     for (int i = 0; i < nombreVoiture; i++) {
-      classement[i]->memory->ready = TRUE;
       if (i>=nombreVoiture-offset) {
-        classement[i]->memory->status = -1;
+        classement[i]->memory->status = 0;
+				classement[i]->memory->ready = TRUE;
       }
+			else{
+				classement[i]->memory->status = 2;
+				classement[i]->memory->ready = TRUE;
+			}
     }
   }
   else{
     for (int i = 0; i < nombreVoiture-offset; i++) {
-      classement[i]->memory->ready = TRUE;
       if (i>=nombreVoiture-2*offset) {
-        classement[i]->memory->status = -1;
+        classement[i]->memory->status = 0;
+				classement[i]->memory->ready = TRUE;
       }
+			else{
+				classement[i]->memory->status = 2;
+				classement[i]->memory->ready = TRUE;
+			}
     }
   }
 }
@@ -595,4 +625,30 @@ void initGagnant(gagnant *secteur) {
 		secteur[i].voitureId = -1;
 		secteur[i].voitureTemps = (int)INFINITY;
 	}
+}
+
+int totalCrashDetection(int nombreEnfants){
+
+	for (int i = 0; i < nombreEnfants; i++) {
+		if(!copieMemoire[i].crash){
+      return FALSE;
+    }
+	}
+
+	return TRUE;
+}
+
+int overCrashDetection(int nombreEnfants, int overCrash){
+	int crashNumber = 0;
+
+	for (int i = 0; i < nombreEnfants; i++) {
+		if(copieMemoire[i].crash){
+      crashNumber ++;
+    }
+	}
+	// test de crash
+	if (crashNumber <= overCrash) {
+		return FALSE;
+	}
+	return TRUE;
 }

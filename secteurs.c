@@ -51,11 +51,10 @@ int secteur(int taille1, int taille2){
 * @return int
 */
 int crash(){//methode pour determiner si il y a un crash
-  return FALSE;
-
-  if(my_rand(1,5000) <= 49){
+  if(my_rand(1,5000) <= 25){
         return TRUE;
   }
+  return FALSE;
 }
 /**
 *@return int

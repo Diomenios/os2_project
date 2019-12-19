@@ -13,6 +13,7 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 
 // definition de constantes propres a l'ensemble du programme
 #define NOMBRE_DE_VOITURE 9
+#define QUALIF_OFFSET 3
 
 #define TRUE 1
 #define FALSE 0
@@ -21,8 +22,8 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 #define P1 1000//5400
 #define P2 750 //5400
 #define P3 500 //3600
-#define Q2 900
 #define Q1 1080
+#define Q2 900
 #define Q3 720
 #define TEMPS_COURSE 7200
 #define TEMPS_ATTENTE 0.5

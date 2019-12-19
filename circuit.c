@@ -7,10 +7,12 @@
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <semaphore.h>
+#include <limits.h>
 #include "constantes.h"
 #include "voiture.h"
 #include "secteurs.h"
 #include "affichage.h"
+#include "circuit.h"
 
 /** simule un tour dans un circuit pour les qualif et les essais
 *
@@ -24,19 +26,22 @@
 int tour(voiture *maVoiture){
 
     int total=0;                    //temps total pour le tour
-    int tour = 0;
-    int crash = FALSE;              //boolean pour le crash de la voiture
     int s = 0;                      //temps pour un secteur
     int i = 1;
 
-    while (i<=3 && crash != TRUE){
+    while (i<=3){
 
         s = secteur(100,250);
         sleep((s*10)/1000);         // endormir le processus pendant s*10 milliseconde
-
+        if (i == 1) {
+          refreshSecteurs(maVoiture);
+        }
         if(s == 0){                 //test si il y a un crash
-            crash = TRUE;
             maVoiture->status = 0;
+            maVoiture->crash = TRUE;
+            maVoiture->meilleurTemps = INT_MAX;
+            maVoiture->changeOrdre = TRUE;
+            refreshSecteurs(maVoiture);
             return 0;
         }
         if((i%2)==0){             //si il passe dans le secteur 2
@@ -77,9 +82,14 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
     do{
         //effectue un tour puis incremente le temps total que la voiture aura passe en course
         temps1 = tour(maVoiture);
-				maVoiture->tours += 1;
         temps2 += temps1;
 
+        if(temps1==0){
+            maVoiture->ready = -1;
+            return;
+        }
+
+        maVoiture->tours += 1;
         //verifie si la voiture a fait un meilleur temps que ce qu'elle avait precedemment fait
         if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
           maVoiture->meilleurTemps = temps1;        //sauvegarde la valeur en memoire partagee
@@ -87,18 +97,6 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
             maVoiture->changeOrdre = TRUE;          //indique que le temps de la voiture a changeOrdre
           }
 
-        }
-        //la voiture c'est crashee, fin de la course
-        if(temps1==0){
-            printf("retour au stand: crash\n");
-            return;
-        }
-        else if(temps2>=chrono){
-            j++;
-        }
-        else {
-
-            j++;
         }
     }while(temps2<chrono && temps1 !=0);
     maVoiture->ready = -1;
@@ -116,19 +114,24 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
 int tourCourse(voiture *maVoiture){
 
     int total=0;                    //temps total
-    int tour = 0;
-    int crash = FALSE;              //boolean pour le crash de la voiture
     int s = 0;                      //temps pour un secteur
     int i = 1;
 
-    while (i<=3 && crash != TRUE){
+    while (i<=3){
 
         s = secteur(100,250);
         sleep((s*10)/1000);         // endormir le processus pendant s*10 milliseconde
 
+        if (i == 1) {
+          refreshSecteurs(maVoiture);
+        }
+
         if(s == 0){                 //test si il y a un crash
-            crash = TRUE;
             maVoiture->status = 0;
+            maVoiture->crash = TRUE;
+            maVoiture->meilleurTemps = INT_MAX;
+            maVoiture->changeOrdre = TRUE;
+            refreshSecteurs(maVoiture);
             return 0;
         }
         if((i%2)==0){               //si il passe dans le secteur 2
@@ -163,7 +166,7 @@ int tourCourse(voiture *maVoiture){
 *
 */
 //TODO : ajouter les semaphores
-int Course(int tours, voiture *maVoiture){
+void Course(int tours, voiture *maVoiture){
 
     int temps1 = 0;
     int temps2 = -1;
@@ -172,9 +175,14 @@ int Course(int tours, voiture *maVoiture){
     do{
         //effectue un tour puis incremente le temps total que la voiture aura passe en course
         temps1 = tourCourse(maVoiture);
-				maVoiture->tours += 1;
         temps2 += temps1;
 
+        if(temps1==0){
+            maVoiture->ready = -1;
+            return;
+        }
+
+        maVoiture->tours += 1;
         //verifie si la voiture a fait un meilleur temps que ce qu'elle avait precedemment fait
 				if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
 					maVoiture->meilleurTemps = temps1;        //sauvegarde la valeur en memoire partagee
@@ -182,13 +190,12 @@ int Course(int tours, voiture *maVoiture){
 						maVoiture->changeOrdre = TRUE;          //indique que le temps de la voiture a changeOrdre
 					}
 				}
-        //la voiture c'est crashee, fin de la course
-        if(temps1==0){
-            printf("retour au stand: crash\n");
-        }
-        else{
-            j++;
-        }
     }while(maVoiture->tours<=tours && temps1 !=0);
 		maVoiture->ready = -1;
+}
+
+void refreshSecteurs(voiture *maVoiture){
+  maVoiture->tempSecteur1 = 0;
+  maVoiture->tempSecteur2 = 0;
+  maVoiture->tempSecteur3 = 0;
 }

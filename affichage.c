@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <limits.h>
 #include <math.h>
 #include "constantes.h"
 #include "voiture.h"
@@ -58,7 +59,7 @@ void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs){
     strcat(ligne, recup);
     free(recup); //libere la memoire qui n'est plus utile
 
-    strcat(ligne, decodageStatus(classement[i]->status));
+    strcat(ligne, decodageStatus(classement[i]->status, classement[i]->crash));
 
     recup = creationCelluleNombre(7, classement[i]->tours, (int)floor(log10(classement[i]->tours))+1);
     strcat(ligne, recup);
@@ -77,7 +78,7 @@ void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs){
   }
   printf("%s\n", buffer);
   free(buffer);  //libere la memoire occupee par le tableau car plus necessaire
-  
+
   if (secteurs[0].voitureId == -1) {
     printf("meilleur temps dans le secteur 1 : %s\n", "NA");
   }
@@ -149,7 +150,7 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
     strcat(ligne, recup);
     free(recup); //libere la memoire qui n'est plus utile
 
-    strcat(ligne, decodageStatus(classement[i]->local->status));
+    strcat(ligne, decodageStatus(classement[i]->local->status, classement[i]->local->crash));
 
     recup = creationCelluleNombre(7, classement[i]->local->tours, (int)floor(log10(classement[i]->local->tours))+1);
     strcat(ligne, recup);
@@ -239,7 +240,7 @@ strcat(buffer, titrePeriode);
     strcat(ligne, recup);
     free(recup); //libere la memoire qui n'est plus utile
 
-    strcat(ligne, decodageStatus(classement[i]->status));
+    strcat(ligne, decodageStatus(classement[i]->status, classement[i]->crash));
 
     recup = creationCelluleNombre(7, classement[i]->tours, (int)floor(log10(classement[i]->tours))+1);
     strcat(ligne, recup);
@@ -292,7 +293,7 @@ strcat(buffer, titrePeriode);
 * @return                   renvoie un poiteur vers la zone memoire contenant notre cellule
 */
 char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
-  if (input <= 0) {                                //rien a afficher
+  if (input <= 0 || input == INT_MAX) {                                //rien a afficher
     char *cell = malloc(tailleCellule);
     strcat(cell, " NA");
     for (int i = 0; i < tailleCellule-4; i++) {
@@ -324,14 +325,14 @@ char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
 * @param  int status  le status de la voiture sous format numerique
 * @return             retourne une chaine de caracteres de bonne taille  la cellule
 */
-char* decodageStatus(int status){
-  if (status == 0) {
+char* decodageStatus(int status, int crash){
+  if (crash) {
     return " OUT    |";
   }
   if (status == 1) {
     return " P      |";
   }
-  if (status == -1){
+  if (status == 0){
     return " NO RUN |";
   }
   else{

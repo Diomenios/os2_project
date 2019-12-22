@@ -20,7 +20,7 @@
 * @param int max
 * NB : min doit etre plus grand que max
 *
-* @return int c
+* @return int le nombre aleatoire
 */
 int my_rand(int min, int max){
   int c = rand()%(max-min+1)+min;//creation du nombre aleatoire
@@ -48,7 +48,7 @@ int secteur(int taille1, int taille2){
 /**
 * return true(1) si il est plus petit que 49 sinon false(0)
 *
-* @return int
+* @return int retourne true(1) si il y a crash, sinon false(0)
 */
 int crash(){//methode pour determiner si il y a un crash
   if(my_rand(1,5000) <= 25){
@@ -57,8 +57,8 @@ int crash(){//methode pour determiner si il y a un crash
   return FALSE;
 }
 /**
-*@return int
-* return true(1) si il est egal a 1 sinon false(0)
+*@return int retourne true(1) si il y a crash, sinon false(0)
+*
 */
 int stand(){//passage au stand
     if(my_rand(1,20) <= 2){//1 chance sur 10 d'aller au stand

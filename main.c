@@ -229,16 +229,16 @@ void sm_unlink(int nbr, char *tableau_semaphores[]){
 *		affiche le resultat du tri dans le terminal.  sauvegarde la session d'essais
 *		si les voitures ont termine leur course
 *
-* @param int nombreEnfants le nombre de voiture present dans la course
-* @param voiture* shm			 le pointeur vers l'emplacement en memoire partagee des voiture
-*	@param int typeDeCourse	 nombre determinant le type de course dans laquelle on est.
-*													 valeurs possibles : 1, 2 ou 3
+* @param int nombreEnfants 						le nombre de voiture present dans la course
+* @param voiture* shm			 						le pointeur vers l'emplacement en memoire partagee des voiture
+*	@param int typeDeCourse	 						nombre determinant le type de course dans laquelle on est.
+*													 						valeurs possibles : 1, 2 ou 3
+*	@param sem_t** tableau_semaphores		le tableau contenant les semaphores
 *
 *	@return int							 retourne les valeurs TRUE ou FALSE.  si FALSE est renvoye,
 *													 la course est finie
 *
 */
-//TODO mettre le sémaphore
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tableau_semaphores){
 
 	//zone critique
@@ -299,6 +299,7 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tablea
 *																de la course en cours
 * @param int size								la taille de classementDuo, evite les repetitions de sizeof()
 *																lors de l'execution de la methode
+*	@param sem_t** tableau_semaphores		le tableau contenant les semaphores
 *
 *	@return int										retourne les valeurs TRUE ou FALSE.  si FALSE est renvoye,
 *													 			la course est finie
@@ -309,7 +310,6 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tablea
 *			 vers la memoire partagee et les pointeurs vers la memoire locale)
 *
 */
-//TODO mettre le sémaphore
 int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size, sem_t **tableau_semaphores){
   int voiture_en_course;
   int sorting = FALSE;
@@ -413,14 +413,18 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
 *		affiche le resultat du tri dans le terminal.  sauvegarde la session de course
 *		si les voitures ont termine de concourir
 *
-* @param int nombreEnfants le nombre de voiture present dans la course
-* @param voiture* shm			 le pointeur vers l'emplacement en memoire partagee des voiture
+* @param int nombreEnfants 						le nombre de voiture present dans la course
+* @param voiture* shm			 						le pointeur vers l'emplacement en memoire partagee des voiture
+*	@param int*	meilleurId	 						pointeur vers la memoire contenant l'id de la voiture avec
+*													 						le meilleur temps
+*	@param int* meilleurIdTemps					pointeur vers la memoire contenant meilleur temps pour
+*																			un tour
+*	@param sem_t** tableau_semaphores		le tableau contenant les semaphores
 *
 *	@return int							 retourne les valeurs TRUE ou FALSE.  si FALSE est renvoye,
 *													 la course est finie
 *
 */
-//TODO mettre le sémaphore
 int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores){
 
 	//zone critique
@@ -479,6 +483,7 @@ int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meil
 																	valeurs possibles : P1, P2, P3, Q, Course
 * @param const int* numeroVoiture le tableau contenant les numeros (id) des voitures
 *																	a lancer dans la course
+*	@param char* tableauNoms[]			tableau contenant les noms des semaphores
 *
 */
 void initFork(int incr,char *semid, char *mode,const int numeroVoiture[], char *tableauNoms[]){
@@ -501,7 +506,8 @@ void initFork(int incr,char *semid, char *mode,const int numeroVoiture[], char *
 /**utilise les methodes de saveLoad.c pour sauvegarder les resultats des courses
 *	 determine le type de course dans laquelle on se trouve
 *
-*	@param int compteur le numero permettant de savoir le type de course que l'on a effectuee
+*	@param int compteur 			le numero permettant de savoir le type de course que l'on a effectuee
+*	@param int nombreEnfants	le nombre de voitures dans la course
 *
 */
 void save(int compteur, int nombreEnfants){
@@ -691,6 +697,12 @@ tuple * initTuple(voiture *local, voiture *memory){
   return new;
 }
 
+/** permet d'initialiser un tableau de taille 3 contenant des structures
+*		de donnee "gagnant"
+*
+*	@param gagnant* secteur	le tableau de structure "gagnant" devant etre initialise
+*
+*/
 void initGagnant(gagnant *secteur) {
 	for (int i = 0; i < 3; i++) {
 		secteur[i].voitureId = -1;
@@ -698,6 +710,14 @@ void initGagnant(gagnant *secteur) {
 	}
 }
 
+/** permet de savoir si toutes les voitures sont crashee ou non
+*
+*	@param int nombreEnfants	le nombre de voitures dans la course
+*
+*	@return int 							booleen donnant le resultat : FALSE si jamais au moins une
+*														voiture n'est pas crashee, TRUE dans les autres cas
+*
+*/
 int totalCrashDetection(int nombreEnfants){
 
 	for (int i = 0; i < nombreEnfants; i++) {
@@ -709,6 +729,17 @@ int totalCrashDetection(int nombreEnfants){
 	return TRUE;
 }
 
+/** permet de savoir si le nombre de voiture crashee sont superieur ou non
+*		a un nombre defini de crash
+*
+*	@param int nombreEnfants	le nombre de voitures dans la course
+*	@param int overCrash			le nombre de crashs maximum tolere
+*
+*	@param int 								booleen donnant le resultat : FALSE si jamais il y a eu
+*														un nombre de crash egal ou inferieur a overCrash, TRUE
+*														dans les autres cas 
+*
+*/
 int overCrashDetection(int nombreEnfants, int overCrash){
 	int crashNumber = 0;
 

@@ -34,13 +34,13 @@ int secteur(int taille1, int taille2);
 /**
 * return true(1) si il est plus petit que 49 sinon false(0)
 *
-* @return int
+* @return int retourne true(1) si il y a crash, sinon false(0)
 */
 int crash();
 
 /**
-*@return int
-* return true(1) si il est egal a 1 sinon false(0)
+*@return int retourne true(1) si il y a crash, sinon false(0)
+*
 */
 int stand();
 

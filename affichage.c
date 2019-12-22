@@ -18,6 +18,8 @@
 * @param  voiture* classement[] un pointeur vers un tableau de voiture triees
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
+* @param gagnant* secteurs		    les trois voitures ayant ete les plus rapides dans un secteur
+*
 */
 void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs){
   system("clear");
@@ -105,9 +107,11 @@ void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs){
 /* Fonction d'affichage  les qualifications : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
 *
-*@param tuple* classement[] un pointeur vers un tableau de voiture triees en memoire partagee et locale
-*@param int manche          un numero indiquant la partie de la serie de course dans laquelle
+* @param tuple* classement[] un pointeur vers un tableau de voiture triees en memoire partagee et locale
+* @param int manche          un numero indiquant la partie de la serie de course dans laquelle
 *                           on est
+* @param gagnant* secteurs  les trois voitures ayant ete les plus rapides dans un secteur
+*
 * N.B: tuple utilise  gestion des pointeurs entre les pointeurs de la memoire locale et partagee
 */
 void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteurs){
@@ -199,6 +203,11 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
 * @param  voiture* classement[] un pointeur vers un tableau de voiture triees
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
+* @param gagnant* secteurs		  les trois voitures ayant ete les plus rapides dans un secteur
+*	@param int meilleurIdTemps	  le meilleur temps pour faire un tour de circuit
+*	@param int meilleurId				  le numero de la voiture ayant fait le meilleur temps pour un tour
+*															  de circuit
+*
 */
 void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps){
   system("clear");
@@ -329,6 +338,8 @@ char* creationCelluleNombre(int tailleCellule, int input, int sizeInput){
 *  OUT, P ou GO
 *
 * @param  int status  le status de la voiture sous format numerique
+* @param  int crash   booleen permettant de savoir si la voiture est crashee
+*
 * @return             retourne une chaine de caracteres de bonne taille  la cellule
 */
 char* decodageStatus(int status, int crash){

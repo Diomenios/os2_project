@@ -129,8 +129,12 @@ void initVoiture(int stat, int read, int id, voiture *shm){
 /**permet a la voiture d'attendre que le processus pere finisse de synchroniser les
 *  voitures avant de lancer une nouvelle periode de qualification
 *
+*  ATTENTION : zone d'ecriture a risque en memoire partagee, d'ou l'usage
+*              d'un semaphore
+*
 * @param voiture* shm pointeur vers l'emplacement en memoire partagee de la voiture
 * @param int id       numero de la voiture
+* @param sem_t* sem   pointeur vers le semaphore utilise par la voiture
 *
 */
 void attenteQuali(voiture *shm, int id, sem_t *sem){

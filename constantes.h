@@ -19,9 +19,9 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 #define FALSE 0
 
 // utile si programme non-parametre
-#define P1 1000//5400
-#define P2 750 //5400
-#define P3 500 //3600
+#define P1 5400
+#define P2 5400
+#define P3 3600
 #define Q1 1080
 #define Q2 900
 #define Q3 720

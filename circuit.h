@@ -11,7 +11,7 @@
 * @return int               retourne le temps total qu'a pris la voiture pour faire
 *                           un tour
 */
-int tour(voiture *maVoiture);
+int tour(voiture *maVoiture, sem_t *sem);
 
 /** simule le deroulement d'une session entiere d'une couse d'essais ou de qualification
 *
@@ -20,7 +20,7 @@ int tour(voiture *maVoiture);
 *                           simulee par le processus
 *
 */
-void essaiLibreQuali(int chrono,voiture *maVoiture);
+void essaiLibreQuali(int chrono,voiture *maVoiture, sem_t *sem);
 
 /** simule un tour dans un circuit pour la course principale
 *
@@ -30,7 +30,7 @@ void essaiLibreQuali(int chrono,voiture *maVoiture);
 * @return int               retourne le temps total qu'a pris la voiture pour faire
 *                           un tour
 */
-int tourCourse(voiture *maVoiture);
+int tourCourse(voiture *maVoiture, sem_t *sem);
 
 /** simule le deroulement de l'entierete de la course
 *
@@ -39,7 +39,7 @@ int tourCourse(voiture *maVoiture);
 *                           simulee par le processus
 *
 */
-void Course(int tours, voiture *mavoiture);
+void Course(int tours, voiture *mavoiture, sem_t *sem);
 
 void refreshSecteurs(voiture *maVoiture);
 

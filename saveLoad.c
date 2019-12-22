@@ -77,7 +77,7 @@ void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de p
 		for (int i = 0; i <NOMBRE_DE_VOITURE-1; i++) {
 			fprintf(fichier, "%d,", classement[i]->local->id);
 		}
-		fprintf(fichier, "%d", NOMBRE_DE_VOITURE-1);
+		fprintf(fichier, "%d", classement[NOMBRE_DE_VOITURE-1]->local->id);
 		fprintf(fichier, "</>\n", NULL);
 
 		fprintf(fichier, "classement des meilleurs temps des 3 période de qualification \n", NULL);

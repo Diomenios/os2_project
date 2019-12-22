@@ -23,7 +23,7 @@
 *                           un tour
 */
 //TODO : ajouter les semaphores
-int tour(voiture *maVoiture){
+int tour(voiture *maVoiture, sem_t *sem){
 
     int total=0;                    //temps total pour le tour
     int s = 0;                      //temps pour un secteur
@@ -34,30 +34,45 @@ int tour(voiture *maVoiture){
         s = secteur(100,250);
         sleep((s*10)/1000);         // endormir le processus pendant s*10 milliseconde
         if (i == 1) {
+          sem_wait(sem);
           refreshSecteurs(maVoiture);
+          sem_post(sem);
         }
         if(s == 0){                 //test si il y a un crash
-            maVoiture->status = 0;
-            maVoiture->crash = TRUE;
-            maVoiture->meilleurTemps = INT_MAX;
-            maVoiture->changeOrdre = TRUE;
-            refreshSecteurs(maVoiture);
-            return 0;
+          sem_wait(sem);
+          maVoiture->status = 0;
+          maVoiture->crash = TRUE;
+          maVoiture->meilleurTemps = INT_MAX;
+          maVoiture->changeOrdre = TRUE;
+          refreshSecteurs(maVoiture);
+          sem_post(sem);
+          return 0;
         }
         if((i%2)==0){             //si il passe dans le secteur 2
-           maVoiture->tempSecteur2 = s;
+          sem_wait(sem);
+          maVoiture->tempSecteur2 = s;
+          sem_post(sem);
         }
         else if((i%3)==0){        //si il passe dans le secteur 3
-           if(stand()){
-                total += 15;
-                maVoiture->status=1;
-                sleep(1);         // endormir le processus pendant s*10 milliseconde
-                maVoiture->status=2;
-           }
-           maVoiture->tempSecteur3 = s;
+          if(stand()){
+            s += 50;
+
+            sem_wait(sem);
+            maVoiture->status=1;
+            sem_post(sem);
+
+            sleep(0.5);         // endormir le processus pendant s*10 milliseconde
+
+          }
+          sem_wait(sem);
+          maVoiture->status=2;
+          maVoiture->tempSecteur3 = s;
+          sem_post(sem);
         }
         else{                     //si il passe dans le secteur 1
-           maVoiture->tempSecteur1 = s;
+          sem_wait(sem);
+          maVoiture->tempSecteur1 = s;
+          sem_post(sem);
         }
 
         total += s;               //ajout au temps total de la voiture dans le circuit
@@ -75,20 +90,23 @@ int tour(voiture *maVoiture){
 *
 */
 //TODO : ajouter les semaphores
-void essaiLibreQuali(int chrono, voiture *maVoiture){
+void essaiLibreQuali(int chrono, voiture *maVoiture, sem_t *sem){
     int temps1 = 0;
     int temps2 = 0;
     int j = 1;
     do{
         //effectue un tour puis incremente le temps total que la voiture aura passe en course
-        temps1 = tour(maVoiture);
+        temps1 = tour(maVoiture, sem);
         temps2 += temps1;
 
         if(temps1==0){
-            maVoiture->ready = -1;
-            return;
+          sem_wait(sem);
+          maVoiture->ready = -1;
+          sem_post(sem);
+          return;
         }
 
+        sem_wait(sem);
         maVoiture->tours += 1;
         //verifie si la voiture a fait un meilleur temps que ce qu'elle avait precedemment fait
         if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
@@ -96,10 +114,13 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
           if (!maVoiture->changeOrdre) {
             maVoiture->changeOrdre = TRUE;          //indique que le temps de la voiture a changeOrdre
           }
-
         }
+        sem_post(sem);
+
     }while(temps2<chrono && temps1 !=0);
+    sem_wait(sem);
     maVoiture->ready = -1;
+    sem_post(sem);
 }
 
 /** simule un tour dans un circuit pour la course principale
@@ -111,7 +132,7 @@ void essaiLibreQuali(int chrono, voiture *maVoiture){
 *                           un tour
 */
 //TODO : ajouter les semaphores
-int tourCourse(voiture *maVoiture){
+int tourCourse(voiture *maVoiture, sem_t *sem){
 
     int total=0;                    //temps total
     int s = 0;                      //temps pour un secteur
@@ -123,35 +144,49 @@ int tourCourse(voiture *maVoiture){
         sleep((s*10)/1000);         // endormir le processus pendant s*10 milliseconde
 
         if (i == 1) {
+          sem_wait(sem);
           refreshSecteurs(maVoiture);
+          sem_post(sem);
         }
 
         if(s == 0){                 //test si il y a un crash
-            maVoiture->status = 0;
-            maVoiture->crash = TRUE;
-            maVoiture->meilleurTemps = INT_MAX;
-            maVoiture->changeOrdre = TRUE;
-            refreshSecteurs(maVoiture);
-            return 0;
+          sem_wait(sem);
+          maVoiture->status = 0;
+          maVoiture->crash = TRUE;
+          maVoiture->meilleurTemps = INT_MAX;
+          maVoiture->changeOrdre = TRUE;
+          refreshSecteurs(maVoiture);
+          sem_post(sem);
+          return 0;
         }
-        if((i%2)==0){               //si il passe dans le secteur 2
-           maVoiture->tempSecteur2 = s;
+        if((i%2)==0){                   //si il passe dans le secteur 2
+          maVoiture->tempSecteur2 = s;
         }
-        else if((i%3)==0){          //si il passe dans le secteur 3
-           if(stand()){
-                total += 15;
-                maVoiture->status=1;
-                sleep(1);           // endormir le processus pendant s*10 milliseconde
-                maVoiture->status=2;
-           }
-           maVoiture->tempSecteur3 = s;
+        else if((i%3)==0){              //si il passe dans le secteur 3
+          if(stand()){
+            s += 50;
+
+            sem_wait(sem);
+            maVoiture->status=1;
+            sem_post(sem);
+
+            sleep(0.5);                  // endormir le processus pendant s*10 milliseconde
+          }
+          sem_wait(sem);
+          maVoiture->status=2;
+          maVoiture->tempSecteur3 = s;
+          sem_post(sem);
         }
-        else{                       //si il passe dans le secteur 1
-           maVoiture->tempSecteur1 = s;
+        else{
+          sem_wait(sem);
+          maVoiture->tempSecteur1 = s;   //si il passe dans le secteur 1
+          sem_post(sem);
         }
+        sem_wait(sem);
 				maVoiture->tempsTotal += s;
 				maVoiture->changeOrdre = TRUE;
-        total += s;                 //ajout au temps total de la voiture dans le circuit
+        sem_post(sem);
+        total += s;                       //ajout au temps total de la voiture dans le circuit
         i++;
     }
 
@@ -166,7 +201,7 @@ int tourCourse(voiture *maVoiture){
 *
 */
 //TODO : ajouter les semaphores
-void Course(int tours, voiture *maVoiture){
+void Course(int tours, voiture *maVoiture, sem_t *sem){
 
     int temps1 = 0;
     int temps2 = -1;
@@ -174,14 +209,18 @@ void Course(int tours, voiture *maVoiture){
 
     do{
         //effectue un tour puis incremente le temps total que la voiture aura passe en course
-        temps1 = tourCourse(maVoiture);
+        temps1 = tourCourse(maVoiture, sem);
         temps2 += temps1;
 
+
         if(temps1==0){
-            maVoiture->ready = -1;
-            return;
+          sem_wait(sem);
+          maVoiture->ready = -1;
+          sem_post(sem);
+          return;
         }
 
+        sem_wait(sem);
         maVoiture->tours += 1;
         //verifie si la voiture a fait un meilleur temps que ce qu'elle avait precedemment fait
 				if (maVoiture->meilleurTemps > temps1 || maVoiture->meilleurTemps == 0) {
@@ -190,8 +229,11 @@ void Course(int tours, voiture *maVoiture){
 						maVoiture->changeOrdre = TRUE;          //indique que le temps de la voiture a changeOrdre
 					}
 				}
+        sem_post(sem);
     }while(maVoiture->tours<=tours && temps1 !=0);
+    sem_wait(sem);
 		maVoiture->ready = -1;
+    sem_post(sem);
 }
 
 void refreshSecteurs(voiture *maVoiture){

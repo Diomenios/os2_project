@@ -10,6 +10,7 @@
 #include <fcntl.h>           /* Pour les constantes O_* */
 #include <sys/stat.h>        /* Pour les constantes « mode » */
 #include <semaphore.h>
+#include <limits.h>
 #include "constantes.h"
 #include "voiture.h"
 #include "affichage.h"
@@ -17,7 +18,8 @@
 #include "helper.h"
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-#define BASE_NOM_SEMAPHORE "semp"
+#define BASE_NOM_SEMAPHORE "semy"
+#define CLOCK 1
 
 /*************************  fonctions du programme  ***************************/
 
@@ -29,7 +31,7 @@ void sm_post(int nbr, sem_t *tableau_semaphores[]);//unlock les semaphores
 void sm_unlink(int nbr, char *tableau_semaphores[]);//fermeture des semaphores
 int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tableau_semaphores);//lecture de la memoire
 int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size, sem_t **tableau_semaphores);//lecture en memoire de la qualif
-int readCourseMemory(int nombreEnfants, voiture *shm, sem_t **tableau_semaphores);//lecture en memoire de la course
+int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores);//lecture en memoire de la course
 void initFork(int incr,char *semid, char *mode,const int numeroVoiture[], char *tableauNoms[]);//initialise les forks
 void save(int compteur, int nombreEnfants);//sauvegarde
 int modeCourse(char *argument_entrer);//lancer la course finale
@@ -58,7 +60,6 @@ gagnant meilleursSecteur[3];
 *
 */
 int main(int argc, char *argv[]){
-
 	if (argc < 2) {
 		printf("%s\n", "veuillez passer au moins un paramètre au programme !");
 		exit(EXIT_SUCCESS);
@@ -105,7 +106,7 @@ int main(int argc, char *argv[]){
     initFork(NOMBRE_DE_VOITURE, pass, argv[1], VOITURE_NUMBER, tableauNoms); // lance les voitures
 
     while (readMemory(NOMBRE_DE_VOITURE, shm, typeDeCourse, tableau_semaphores)) {
-      sleep(1);
+      sleep(CLOCK);
     }
     save(typeDeCourse, NOMBRE_DE_VOITURE);
   }
@@ -121,7 +122,7 @@ int main(int argc, char *argv[]){
     initFork(NOMBRE_DE_VOITURE, pass, argv[1], VOITURE_NUMBER, tableauNoms); // lance les voitures
 
     while(readQualifMemory(NOMBRE_DE_VOITURE, shm, &typeDeCourse, classementDuo, size, tableau_semaphores)){
-      sleep(1);
+      sleep(CLOCK);
     }
 
     for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
@@ -142,11 +143,13 @@ int main(int argc, char *argv[]){
     }
     initFork(NOMBRE_DE_VOITURE, pass, argv[1], listeVoiture, tableauNoms); // lance les voitures
 
-    while (readCourseMemory(NOMBRE_DE_VOITURE, shm, tableau_semaphores)) {
-      sleep(1);
+		int meilleurId = -1;
+		int meilleurIdTemps = INT_MAX;
+    while (readCourseMemory(NOMBRE_DE_VOITURE, shm, &meilleurId, &meilleurIdTemps, tableau_semaphores)) {
+      sleep(CLOCK);
     }
     free(listeVoiture);
-		save(typeDeCourse, NOMBRE_DE_VOITURE);
+		saveCourse(classement, meilleursSecteur, meilleurIdTemps, meilleurId);
   }
 
   shmdt(shm);
@@ -418,7 +421,7 @@ int readQualifMemory(int nombreEnfants, voiture *shm, int *typeDeCourse, tuple *
 *
 */
 //TODO mettre le sémaphore
-int readCourseMemory(int nombreEnfants, voiture *shm, sem_t **tableau_semaphores){
+int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores){
 
 	//zone critique
 	sm_wait(NOMBRE_DE_VOITURE, tableau_semaphores);
@@ -445,6 +448,10 @@ int readCourseMemory(int nombreEnfants, voiture *shm, sem_t **tableau_semaphores
 			meilleursSecteur[2].voitureTemps = copieMemoire[i].tempSecteur3;
 			meilleursSecteur[2].voitureId = copieMemoire[i].id;
 		}
+		if (copieMemoire[i].meilleurTemps > 0 && copieMemoire[i].meilleurTemps < *meilleurIdTemps) {
+			*meilleurId = copieMemoire[i].id;
+			*meilleurIdTemps = copieMemoire[i].meilleurTemps;
+		}
     if (saveStatus == TRUE && copieMemoire[i].ready != -1) {
       saveStatus = FALSE;
     }
@@ -453,7 +460,7 @@ int readCourseMemory(int nombreEnfants, voiture *shm, sem_t **tableau_semaphores
   if (sorting) {
     qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycoursecmp);
   }
-  afficherTableauScoreCourse(classement, 7, meilleursSecteur);
+  afficherTableauScoreCourse(classement, 7, meilleursSecteur, *meilleurId, *meilleurIdTemps);
 
   if (saveStatus) {
     system("clear");
@@ -511,9 +518,6 @@ void save(int compteur, int nombreEnfants){
 	      break;
 	    case 3:
 	      saveEssai(compteur, P3, classement, meilleursSecteur);
-	      break;
-	    case 7:
-	      saveCourse(classement, meilleursSecteur);
 	      break;
 	    default :
 	      printf("%s\n", "erreur dans la sauvegarde");
@@ -648,9 +652,23 @@ int mycoursecmp(const void *s1, const void *s2) {
     int mtl = l->tempsTotal;
     int mtr = r->tempsTotal;
 
+		if (l->tours > r->tours) return -1;
+		if (l->tours < r->tours) return 1;
+
+		if (l->tempSecteur3 != 0 && r->tempSecteur3 == 0) return -1;
+		if (l->tempSecteur3 == 0 && r->tempSecteur3 != 0) return 1;
+
+		if (l->tempSecteur2 != 0 && r->tempSecteur2 == 0) return -1;
+		if (l->tempSecteur2 == 0 && r->tempSecteur2 != 0) return 1;
+
+		if (l->tempSecteur1 != 0 && r->tempSecteur1 == 0) return -1;
+		if (l->tempSecteur1 == 0 && r->tempSecteur1 != 0) return 1;
+
+
     if (mtl < mtr) return -1;
     if (mtl > mtr) return 1;
-    return 0;
+
+		return 0;
 }
 
 /** initialise un tuple

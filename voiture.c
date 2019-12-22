@@ -7,6 +7,7 @@
 #include <sys/shm.h>
 #include <time.h>
 #include <fcntl.h>           /* Pour les constantes O_* */
+#include <limits.h>
 #include "circuit.h"
 #include "secteurs.h"
 #include "voiture.h"
@@ -62,7 +63,7 @@ int main(int argc, char* argv[]){
   sem_post(sem);
 /********************  Les periodes d'essais ********************************/
 
-  if (strcmp(argv[3], "p  1") == 0) {
+  if (strcmp(argv[3], "p1") == 0) {
     essaiLibreQuali(P1, &shm[nombreFiliale], sem);
   }
   else if (strcmp(argv[3], "p2") == 0) {
@@ -115,13 +116,14 @@ void initVoiture(int stat, int read, int id, voiture *shm){
   shm[nombreFiliale].tempSecteur1 = 0;
   shm[nombreFiliale].tempSecteur2 = 0;
   shm[nombreFiliale].tempSecteur3 = 0;
-  shm[nombreFiliale].meilleurTemps = 0;
+  shm[nombreFiliale].meilleurTemps = INT_MAX;
   shm[nombreFiliale].tempsTotal = 0;
   shm[nombreFiliale].tours = 1;
   shm[nombreFiliale].status = stat;
   shm[nombreFiliale].ready = read;
   shm[nombreFiliale].changeOrdre = FALSE;
   shm[nombreFiliale].crash = FALSE;
+  shm[nombreFiliale].passageAuStand = 0;
 }
 
 /**permet a la voiture d'attendre que le processus pere finisse de synchroniser les

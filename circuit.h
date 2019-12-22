@@ -30,7 +30,7 @@ void essaiLibreQuali(int chrono,voiture *maVoiture, sem_t *sem);
 * @return int               retourne le temps total qu'a pris la voiture pour faire
 *                           un tour
 */
-int tourCourse(voiture *maVoiture, sem_t *sem);
+int tourCourse(voiture *maVoiture, int numeroTour, int tourMax,sem_t *sem);
 
 /** simule le deroulement de l'entierete de la course
 *

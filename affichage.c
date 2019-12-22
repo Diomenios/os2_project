@@ -83,21 +83,21 @@ void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs){
     printf("meilleur temps dans le secteur 1 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 1 : %d\n", secteurs[0].voitureId);
+    printf("meilleur voiture dans le secteur 1 : %d\n", secteurs[0].voitureId);
     printf("meilleur temps dans le secteur 1 : %d\n", secteurs[0].voitureTemps);
   }
   if (secteurs[1].voitureId == -1) {
     printf("meilleur temps dans le secteur 2 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 2 : %d\n", secteurs[1].voitureId);
+    printf("meilleur voiture dans le secteur 2 : %d\n", secteurs[1].voitureId);
     printf("meilleur temps dans le secteur 2 : %d\n", secteurs[1].voitureTemps);
   }
   if (secteurs[2].voitureId == -1) {
     printf("meilleur temps dans le secteur 3 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 3 : %d\n", secteurs[2].voitureId);
+    printf("meilleur voiture dans le secteur 3 : %d\n", secteurs[2].voitureId);
     printf("meilleur temps dans le secteur 3 : %d\n", secteurs[2].voitureTemps);
   }
 }
@@ -174,21 +174,21 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
     printf("meilleur temps dans le secteur 1 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 1 : %d\n", secteurs[0].voitureId);
+    printf("meilleur voiture dans le secteur 1 : %d\n", secteurs[0].voitureId);
     printf("meilleur temps dans le secteur 1 : %d\n", secteurs[0].voitureTemps);
   }
   if (secteurs[1].voitureId == -1) {
     printf("meilleur temps dans le secteur 2 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 2 : %d\n", secteurs[1].voitureId);
+    printf("meilleur voiture dans le secteur 2 : %d\n", secteurs[1].voitureId);
     printf("meilleur temps dans le secteur 2 : %d\n", secteurs[1].voitureTemps);
   }
   if (secteurs[2].voitureId == -1) {
     printf("meilleur temps dans le secteur 3 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 3 : %d\n", secteurs[2].voitureId);
+    printf("meilleur voiture dans le secteur 3 : %d\n", secteurs[2].voitureId);
     printf("meilleur temps dans le secteur 3 : %d\n", secteurs[2].voitureTemps);
   }
 }
@@ -200,7 +200,7 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
 */
-void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs){
+void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|---------|\n";
   char titreTableau[] =  "| Période     |  S1   |  S2   |  S3   | status | tour |  temps  |\n";
@@ -264,22 +264,28 @@ strcat(buffer, titrePeriode);
     printf("meilleur temps dans le secteur 1 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 1 : %d\n", secteurs[0].voitureId);
+    printf("meilleur voiture dans le secteur 1 : %d\n", secteurs[0].voitureId);
     printf("meilleur temps dans le secteur 1 : %d\n", secteurs[0].voitureTemps);
   }
   if (secteurs[1].voitureId == -1) {
     printf("meilleur temps dans le secteur 2 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 2 : %d\n", secteurs[1].voitureId);
+    printf("meilleur voiture dans le secteur 2 : %d\n", secteurs[1].voitureId);
     printf("meilleur temps dans le secteur 2 : %d\n", secteurs[1].voitureTemps);
   }
   if (secteurs[2].voitureId == -1) {
     printf("meilleur temps dans le secteur 3 : %s\n", "NA");
   }
   else{
-    printf("meilleur temps dans le secteur 3 : %d\n", secteurs[2].voitureId);
+    printf("meilleur voiture dans le secteur 3 : %d\n", secteurs[2].voitureId);
     printf("meilleur temps dans le secteur 3 : %d\n", secteurs[2].voitureTemps);
+  }
+  if (meilleurId == -1) {
+    printf("le tour le plus rapide : %s\n", "NA");
+  }
+  else{
+    printf("le tour le plus rapide : %d pour la voiture %d\n", meilleurIdTemps, meilleurId);
   }
 }
 

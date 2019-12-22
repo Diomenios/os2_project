@@ -27,7 +27,7 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
 */
-void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs);
+void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps);
 
 /** Permet de generer et de remplir un case pour le tableau.
 *  ATTENTION : necessite de faire un free apres utilisation car on utilise un malloc

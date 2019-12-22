@@ -42,6 +42,7 @@ typedef struct voiture {
 	*   crash == 1 (TRUE) la voiture est OUT
 	*/
 	int crash;
+	int passageAuStand;
 }voiture;
 
 

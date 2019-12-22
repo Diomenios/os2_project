@@ -34,7 +34,7 @@ void saveQuali(tuple **classement, gagnant *secteurs);
 *
 *
 */
-void saveCourse(voiture **classement, gagnant *secteurs);
+void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int meilleurId);
 
 /**chargement des resultats de la course depuis un fichier .txt deja rempli
 *

@@ -6,6 +6,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/types.h>
+#include <limits.h>
 #include "saveLoad.h"
 #include "voiture.h"
 #include "constantes.h"
@@ -44,8 +45,14 @@ void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Modu
       for(i=0;i<NOMBRE_DE_VOITURE;i++){	//reutilisation du "i" pour economie memoire
 				//sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
 				sprintf(bufferID, "%d", classement[i]->id);
-				bufferTemps = convertion(classement[i]->meilleurTemps);
-        fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
+				if (classement[i]->meilleurTemps == INT_MAX) {
+					fprintf(fichier, "Voiture %s : %s\n", bufferID, "OUT avant d'avoir fait un tour");
+				}
+				else{
+					bufferTemps = convertion(classement[i]->meilleurTemps);
+	        fprintf(fichier, "Voiture %s : %s\n",bufferID, bufferTemps);
+					free(bufferTemps);
+				}
       }
 			for (int i = 0; i < 3; i++) {
 				fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
@@ -63,8 +70,8 @@ void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Modu
 */
 void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de partie
 {
-	char bufferTemps[50];
-	char bufferID[3];
+	char buffervoiture[50];
+	char *time;
 
 	int i;
 	//sauvegarde de fichier
@@ -82,10 +89,7 @@ void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de p
 
 		fprintf(fichier, "classement des meilleurs temps des 3 période de qualification \n", NULL);
 		for(i=0;i<NOMBRE_DE_VOITURE;i++){//reutilisation du "i" pour economie memoire
-
-				sprintf(bufferTemps, "voiture n° : %d", classement[i]->local->id);
-				sprintf(bufferID, "%d", i+1);
-				fprintf(fichier, "%s : %s\n",bufferID, bufferTemps);
+			fprintf(fichier, "%d : voiture n°%d \n", i+1, classement[i]->local->id);
 		}
 		for (int i = 0; i < 3; i++) {
 			fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
@@ -101,10 +105,10 @@ void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de p
 *
 *
 */
-void saveCourse(voiture **classement, gagnant *secteurs)//Module de sauvegarde de partie
+void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int meilleurId)//Module de sauvegarde de partie
 {
-	char bufferTemps[50];
 	char bufferID[3];
+	char *time;
 
     int i;
     //sauvegarde de fichier
@@ -114,12 +118,28 @@ void saveCourse(voiture **classement, gagnant *secteurs)//Module de sauvegarde d
         //ecriture dans le fichier
 				fprintf(fichier, "classement des meilleurs temps de la course\n");
         for(i=0;i<NOMBRE_DE_VOITURE;i++){//reutilisation du "i" pour economie memoire
-					sprintf(bufferTemps, "%d", classement[i]->tempsTotal);
 					sprintf(bufferID, "%d", classement[i]->id);
-          fprintf(fichier, "%s : %s²\n",bufferID, bufferTemps);
+					if (classement[i]->tempsTotal == INT_MAX) {
+						fprintf(fichier, "%d : voiture n°%s : %s\n", i+1, bufferID,"crashée");
+					}
+					else{
+						time = convertion(classement[i]->tempsTotal);
+	          fprintf(fichier, "%d : voiture n°%s : %s\n", i+1, bufferID,time);
+						free(time);
+					}
         }
 				for (int i = 0; i < 3; i++) {
-					fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
+					time = convertion(secteurs[i].voitureTemps);
+					fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %s \n", i+1,secteurs[i].voitureId, time);
+					free(time);
+				}
+				if (meilleurTemps == INT_MAX) {
+					fprintf(fichier, "le meilleur tour n'a été réalisé par aucunes voitures\n");
+				}
+				else{
+					time = convertion(meilleurTemps);
+					fprintf(fichier, "le meilleur tour a été réalisé pour la voiture %d avec un temps de : %s\n", meilleurId, time);
+					free(time);
 				}
         fclose(fichier);//fermeture du fichier
     }
@@ -135,7 +155,7 @@ void saveCourse(voiture **classement, gagnant *secteurs)//Module de sauvegarde d
 int *loading(char *file){
 
 	int *voitureNombre = (int *) malloc(sizeof(int)*NOMBRE_DE_VOITURE);
-	char buffer[50];
+	char buffer[250];
 
 	FILE* fichier = NULL;//creation du fichier text // initialisation du pointeur sur le fichier
 	fichier = fopen(file, "r");//nom du fichier
@@ -167,7 +187,6 @@ int *loading(char *file){
 				j++;
 				loop += sizeof(char);
 			}
-			printf("le number est : %d\n", atoi(loopBuffer));
 			voitureNombre[compteur] = atoi(loopBuffer);
 			compteur++;
 			if (*loop == ',') {

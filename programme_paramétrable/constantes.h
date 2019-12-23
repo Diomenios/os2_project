@@ -18,7 +18,7 @@ static const int VOITURE_NUMBER[] = {7, 99, 5, 16, 8, 20, 4, 55, 10, 26, 44, 77,
 
 
 // definition de constantes propres a l'ensemble du programme
-#define NOMBRE_DE_VOITURE 20
+#define NOMBRE_DE_VOITURE 10
 #define VITESSE_VOITURE 40
 
 

@@ -13,9 +13,18 @@
 #include "helper.h"
 #include "loading_config.h"
 
-// les fonctions fonctionnent correctement
-
-void configuration(data *programmeData, char *file){
+/** lis le fichier de configuration ligne par ligne, repere les caracteres servant
+*   de balises et lance les fonctions s'y rapportant
+*
+* @param data* programmeData  pointeur vers l'emplacement en memoire partagee ou doivent
+*                             etre stockees les donnees
+* @param char* file           string contenant le chemin vers le fichier de configuration a lire
+*
+* @return int*                chaine d'int contenant les numeros des voitures qui vont participer
+*                             a la course
+*
+*/
+int* configuration(data *programmeData, char *file){
 
   char buffer[200];
   FILE* fichier = NULL;
@@ -23,12 +32,13 @@ void configuration(data *programmeData, char *file){
   int incr = 0;
   int nextLoop;
   fichier = fopen(file, "r");
+  int *liste;
 
   if (fichier == NULL){
     free(programmeData);
     programmeData = NULL;
     printf("%s\n", "le fichier de configuration n'existe, veuillez rentrer un fichier de configuration valide");
-    return;
+    return NULL;
   }
 
   while (fgets(buffer , 200, fichier) != NULL) {
@@ -51,7 +61,7 @@ void configuration(data *programmeData, char *file){
         case ':':
           loop ++;
           if (*loop == '{' || *(loop+1) == '{') {
-            programmeData->numeroDesVoitures = readNumerosVoitures(loop+1, nombreVoitures);
+            liste = readNumerosVoitures(loop+1, nombreVoitures);
             nextLoop = TRUE;
           }
           else{
@@ -69,9 +79,20 @@ void configuration(data *programmeData, char *file){
       }
     }
   }
+  return liste;
 }
 
-//testee
+/** va decomposer le string contenant les numeros en coupant au niveau des virgules,
+*   et en "oubliant" les espaces.  La balise de fin est l'accolade fermante (ou quand
+*   le nombre max de numero a ete lu =>  en cas d'erreur de l'utilisateur)
+*
+* @param char* buffer     String contenant les numeros a decrypter
+* @param int tailleListe  nombre max de numero a retrouver
+*
+* @return int*            chaine d'int contenant les numeros des voitures qui vont participer
+*                         a la course
+*
+*/
 int *readNumerosVoitures(char *buffer, int tailleListe){
   int *liste = (int *) malloc(tailleListe * sizeof(int));
   int incr = 0;
@@ -111,9 +132,18 @@ int *readNumerosVoitures(char *buffer, int tailleListe){
   return liste;
 }
 
-//testee
+/** permet de lire les differentes donnees du fichier de config.  Ignore les espaces
+*   et les %, et utilise le caractere "line feed" pour savoir quand arreter de lire
+*   (ou la fin buffer en cas d'erreur)
+*
+* @param data* programmeData  pointeur vers l'emplacement en memoire partagee ou doivent
+*                             etre stockees les donnees
+* @param char* ligne          String contenant le nombre decrypter
+* @param int commande         int permettant de savoir ou mettre le nombre decrypte
+*
+*/
 void readOtherInformation(data *programmeData, char* ligne, int commande){
-  char buffer[20];
+  char *buffer = (char*) malloc(sizeof(char)*20);
   int i = 0;
   strcpy(buffer, "");
   while (*ligne !='\0' && *ligne != '\n' && (int)*ligne !=10) {
@@ -180,9 +210,20 @@ void readOtherInformation(data *programmeData, char* ligne, int commande){
       programmeData->chanceCrash = (int) (convert*10000);
       break;
   }
+  free(buffer);
 }
 
-void defaultConfiguration(data *programmeData){
+/** configure la parametrisation du programme par defaut en allant chercher les
+*   differentes valeurs contenues dans le fichier constantes.h
+*
+* @param data* programmeData  pointeur vers l'emplacement en memoire partagee ou doivent
+*                             etre stockees les donnees
+*
+* @return int*                chaine d'int contenant les numeros des voitures qui vont participer
+*                             a la course
+*
+*/
+int* defaultConfiguration(data *programmeData){
   programmeData->nombreDeVoitures = NOMBRE_DE_VOITURE;
   programmeData->vitesseVoiture = VITESSE_VOITURE;
   programmeData->qualifOffset = QUALIF_OFFSET;
@@ -199,9 +240,10 @@ void defaultConfiguration(data *programmeData){
   programmeData->dureeStand = DUREE_STAND;
   programmeData->chanceStand = CHANCE_STAND;
   programmeData->chanceCrash = CHANCE_CRASH;
-  programmeData->numeroDesVoitures = (int *) malloc(sizeof(int)*NOMBRE_DE_VOITURE);
+  int *liste = (int *) malloc(sizeof(int)*NOMBRE_DE_VOITURE);
 
   for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
-    programmeData->numeroDesVoitures[i] = VOITURE_NUMBER[i];
+    liste[i] = VOITURE_NUMBER[i];
   }
+  return liste;
 }

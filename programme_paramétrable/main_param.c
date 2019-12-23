@@ -19,7 +19,7 @@
 #include "loading_config.h"
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-#define BASE_NOM_SEMAPHORE "sema"
+#define BASE_NOM_SEMAPHORE "semi"
 #define CLOCK 1
 
 /*************************  fonctions du programme  ***************************/
@@ -30,11 +30,11 @@ void sm_initialisation(int nbr, sem_t *tableau_semaphores[], char **noms);//crea
 void sm_wait(int nbr, sem_t *tableau_semaphores[]);//lock les semphores
 void sm_post(int nbr, sem_t *tableau_semaphores[]);//unlock les semaphores
 void sm_unlink(int nbr, char *tableau_semaphores[]);//fermeture des semaphores
-int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tableau_semaphores);//lecture de la memoire
-int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size, sem_t **tableau_semaphores);//lecture en memoire de la qualif
-int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores);//lecture en memoire de la course
-void initFork(int incr,char *semid, char *mode,const int numeroVoiture[], char *tableauNoms[]);//initialise les forks
-void save(int compteur, int nombreEnfants);//sauvegarde
+int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tableau_semaphores, voiture *copieMemoire, voiture **classement);//lecture de la memoire
+int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size, sem_t **tableau_semaphores, voiture *copieMemoire, voiture **classement);//lecture en memoire de la qualif
+int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores, voiture *copieMemoire, voiture **classement);//lecture en memoire de la course
+void initFork(int nombreEnfants,char *semid, char *mode, char *tableauNoms[], int dataID, int *numeroDesVoitures);//initialise les forks
+void save(int compteur, data *programmeData, voiture *copieMemoire, voiture **classement);//sauvegarde
 int modeCourse(char *argument_entrer);//lancer la course finale
 void redemarrerVoiture(tuple **classement, int nombreVoiture, int typeDeCourse, int offset);//relancer une voiture
 int mycmp(const void *s1, const void *s2);
@@ -42,14 +42,10 @@ int mytuplecmp(const void *s1, const void *s2);
 int mycoursecmp(const void *s1, const void *s2);
 tuple * initTuple(voiture *local, voiture *memory);
 void initGagnant(gagnant *secteur);
-int totalCrashDetection(int nombreEnfants);
-int overCrashDetection(int nombreEnfants, int overCrash);
+int totalCrashDetection(int nombreEnfants, voiture *copieMemoire);
+int overCrashDetection(int nombreEnfants, int overCrash, voiture *copieMemoire);
 
-/*********************  variables globales du programme  **********************/
-
-voiture copieMemoire[NOMBRE_DE_VOITURE];
-voiture *classement[NOMBRE_DE_VOITURE];
-int periode[] = {P1, P2, P3};
+/*********************  variable globale du programme  **********************/
 gagnant meilleursSecteur[3];
 
 /**
@@ -63,6 +59,7 @@ gagnant meilleursSecteur[3];
 int main(int argc, char *argv[]){
 
 	int dataID;
+	int *numeroDesVoitures;
 	data *programmeData;
 
 	//initialisation du programme
@@ -78,13 +75,13 @@ int main(int argc, char *argv[]){
 
 	if (argc < 3) {
 		printf("%s\n", "chargement des configurations par défaut");
-		defaultConfiguration(programmeData);
+		numeroDesVoitures = defaultConfiguration(programmeData);
 		sleep(0.5);
 	}
 	else{
 		printf("%s%s\n", "chargement du fichier de configuration : ", argv[2]);
 		sleep(0.5);
-		configuration(programmeData, argv[2]);
+		numeroDesVoitures = configuration(programmeData, argv[2]);
 		if (programmeData == NULL) {
 			exit(EXIT_SUCCESS);
 		}
@@ -108,10 +105,10 @@ int main(int argc, char *argv[]){
 	printf("chance de crash : %d\n", programmeData->chanceCrash);
 
 	for (int i = 0; i < programmeData->nombreDeVoitures; i++) {
-		printf("voiture numéro : %d = %d\n", i+1, programmeData->numeroDesVoitures[i]);
+		printf("voiture numéro : %d = %d\n", i+1, numeroDesVoitures[i]);
 	}
 
-	free(programmeData->numeroDesVoitures);
+	free(numeroDesVoitures);
 	shmdt(programmeData);
 	exit(EXIT_SUCCESS);*/
 
@@ -122,6 +119,9 @@ int main(int argc, char *argv[]){
 	voiture *shm;
 	char **tableauNoms;
 	sem_t *tableau_semaphores[programmeData->nombreDeVoitures];
+	voiture copieMemoire[programmeData->nombreDeVoitures];
+	voiture *classement[programmeData->nombreDeVoitures];
+
 
 	//permet de determiner le type de course choisi par l'utilisateur
   if (typeDeCourse == -1) {
@@ -147,27 +147,31 @@ int main(int argc, char *argv[]){
     classement[i] = &copieMemoire[i];
   }
 
+	printf("%d\n", classement[0]->id);
   //convertis le semid en char* pour le passer aux fils
   //10 parce qu'un int n'est jamais plus grand qu'un nombre à 10 chiffres
   char pass[10];
   sprintf(pass, "%d", semid);
 
-
   /****************************************************************************
   *                     gestion de la course en cours                         *
   ****************************************************************************/
-
   									/********  course d'essais  *********/
   if (typeDeCourse == 1 || typeDeCourse == 2 || typeDeCourse == 3) {
-    initFork(programmeData->nombreDeVoitures, pass, argv[1], VOITURE_NUMBER, tableauNoms); // lance les voitures
-
-    while (readMemory(programmeData->nombreDeVoitures, shm, typeDeCourse, tableau_semaphores)) {
+		for (int i = 0; i < programmeData->nombreDeVoitures; i++) {
+			shm[i].id = numeroDesVoitures[i];
+		}
+    initFork(programmeData->nombreDeVoitures, pass, argv[1], tableauNoms, dataID, numeroDesVoitures); // lance les voitures
+    while (readMemory(programmeData->nombreDeVoitures, shm, typeDeCourse, tableau_semaphores, copieMemoire, classement)) {
       sleep(CLOCK);
     }
-    save(typeDeCourse, programmeData->nombreDeVoitures);
+    save(typeDeCourse, programmeData, copieMemoire, classement);
   }
   								/********  courses de qualification  *********/
   else if (typeDeCourse == 4){
+		for (int i = 0; i < programmeData->nombreDeVoitures; i++) {
+			shm[i].id = numeroDesVoitures[i];
+		}
     tuple *classementDuo[programmeData->nombreDeVoitures];
     for (int i = 0; i < programmeData->nombreDeVoitures; i++) {
       classementDuo[i] = initTuple(classement[i], &shm[i]);
@@ -175,9 +179,9 @@ int main(int argc, char *argv[]){
     }
     int size = sizeof(classementDuo);
 
-    initFork(programmeData->nombreDeVoitures, pass, argv[1], VOITURE_NUMBER, tableauNoms); // lance les voitures
+    initFork(programmeData->nombreDeVoitures, pass, argv[1], tableauNoms, dataID, numeroDesVoitures); // lance les voitures
 
-    while(readQualifMemory(programmeData->nombreDeVoitures, programmeData->qualifOffset, shm, &typeDeCourse, classementDuo, size, tableau_semaphores)){
+    while(readQualifMemory(programmeData->nombreDeVoitures, programmeData->qualifOffset, shm, &typeDeCourse, classementDuo, size, tableau_semaphores, copieMemoire, classement)){
       sleep(CLOCK);
     }
 
@@ -189,31 +193,34 @@ int main(int argc, char *argv[]){
   else {
 
 		//lecture du fichier de sauvegarde cree lors des qualifications
-    int *listeVoiture = loading("F1_quali_save.txt");
+    int *listeVoiture = loading("F1_quali_save.txt", programmeData->nombreDeVoitures);
     if (*listeVoiture == -1) {					//verifie que le fichier existe
       printf("%s\n", "le fichier de sauvegarde n'existe pas !  Veuillez d'abord lancer les courses de qualification");
       shmdt(shm);
       sm_unlink(programmeData->nombreDeVoitures, tableauNoms);
 			tableau_string_free(tableauNoms, programmeData->nombreDeVoitures);
-			free(programmeData->numeroDesVoitures);
+			free(numeroDesVoitures);
 			shmdt(programmeData);
       exit(EXIT_FAILURE);
     }
-    initFork(programmeData->nombreDeVoitures, pass, argv[1], listeVoiture, tableauNoms); // lance les voitures
+		for (int i = 0; i < programmeData->nombreDeVoitures; i++) {
+			shm[i].id = listeVoiture[i];
+		}
+    initFork(programmeData->nombreDeVoitures, pass, argv[1], tableauNoms, dataID, listeVoiture); // lance les voitures
 
 		int meilleurId = -1;
 		int meilleurIdTemps = INT_MAX;
-    while (readCourseMemory(programmeData->nombreDeVoitures, shm, &meilleurId, &meilleurIdTemps, tableau_semaphores)) {
+    while (readCourseMemory(programmeData->nombreDeVoitures, shm, &meilleurId, &meilleurIdTemps, tableau_semaphores, copieMemoire, classement)) {
       sleep(CLOCK);
     }
     free(listeVoiture);
-		saveCourse(classement, meilleursSecteur, meilleurIdTemps, meilleurId);
+		saveCourse(classement, meilleursSecteur, meilleurIdTemps, meilleurId, programmeData->nombreDeVoitures);
   }
 
   shmdt(shm);
   sm_unlink(programmeData->nombreDeVoitures, tableauNoms);
 	tableau_string_free(tableauNoms, programmeData->nombreDeVoitures);
-	free(programmeData->numeroDesVoitures);
+	free(numeroDesVoitures);
 	shmdt(programmeData);
   exit(EXIT_SUCCESS);
 }
@@ -294,12 +301,15 @@ void sm_unlink(int nbr, char *tableau_semaphores[]){
 *	@param int typeDeCourse	 						nombre determinant le type de course dans laquelle on est.
 *													 						valeurs possibles : 1, 2 ou 3
 *	@param sem_t** tableau_semaphores		le tableau contenant les semaphores
+* @param voiture* copieMemoire				pointeur vers la copie en memoire locale de la memoire partagee
+* @param voiture** classement					tableau de pointeurs contenant les copies des adresses memoires
+*																			de copieMemoire
 *
 *	@return int							 retourne les valeurs TRUE ou FALSE.  si FALSE est renvoye,
 *													 la course est finie
 *
 */
-int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tableau_semaphores){
+int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tableau_semaphores, voiture *copieMemoire, voiture **classement){
 
 	//zone critique
 	sm_wait(nombreEnfants, tableau_semaphores);
@@ -332,10 +342,13 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tablea
   }
 
   if (sorting) {
-    qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycmp);
+		voiture *sort[nombreEnfants];
+		memcpy(sort, classement, sizeof(voiture *) * nombreEnfants);
+    qsort(sort, sizeof(sort)/sizeof(*sort), sizeof(*sort), mycmp);
+		memcpy(classement, sort, sizeof(voiture *) * nombreEnfants);
   }
 	printf("%s\n", "affichage");
-  afficherTableauScore(classement, typeDeCourse, meilleursSecteur);
+  afficherTableauScore(classement, typeDeCourse, meilleursSecteur, nombreEnfants);
 
   if (saveStatus) {
     system("clear");
@@ -351,16 +364,19 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tablea
 *		affiche le resultat du tri dans le terminal.  sauvegarde la session d'essais
 *		si les voitures ont termine leur course
 *
-* @param int nombreEnfants 			le nombre de voiture present dans la course
-* @param int qualifOffset 			le nombre de voiture éliminée à chaque manche
-* @param voiture* shm			 			le pointeur vers l'emplacement en memoire partagee des voiture
-* @param int* typeDeCourse 			pointeur permettant de savoir si on est en qualif 1, 2 ou 3
-*																valeur de depart : 4, et sera incremente au cours du programme
-*	@param tuple** classementDuo	pointeur vers un tableau de tuples contenant le classement
-*																de la course en cours
-* @param int size								la taille de classementDuo, evite les repetitions de sizeof()
-*																lors de l'execution de la methode
-*	@param sem_t** tableau_semaphores		le tableau contenant les semaphores
+* @param int nombreEnfants 					le nombre de voiture present dans la course
+* @param int qualifOffset 					le nombre de voiture éliminée à chaque manche
+* @param voiture* shm			 					le pointeur vers l'emplacement en memoire partagee des voiture
+* @param int* typeDeCourse 					pointeur permettant de savoir si on est en qualif 1, 2 ou 3
+*																		valeur de depart : 4, et sera incremente au cours du programme
+*	@param tuple** classementDuo			pointeur vers un tableau de tuples contenant le classement
+*																		de la course en cours
+* @param int size										la taille de classementDuo, evite les repetitions de sizeof()
+*																		lors de l'execution de la methode
+*	@param sem_t** tableau_semaphores	le tableau contenant les semaphores
+* @param voiture* copieMemoire			pointeur vers la copie en memoire locale de la memoire partagee
+* @param voiture** classement				tableau de pointeurs contenant les copies des adresses memoires
+*																		de copieMemoire
 *
 *	@return int										retourne les valeurs TRUE ou FALSE.  si FALSE est renvoye,
 *													 			la course est finie
@@ -371,7 +387,7 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tablea
 *			 vers la memoire partagee et les pointeurs vers la memoire locale)
 *
 */
-int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size, sem_t **tableau_semaphores){
+int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typeDeCourse, tuple **classementDuo, int size, sem_t **tableau_semaphores, voiture *copieMemoire, voiture** classement){
   int voiture_en_course;
   int sorting = FALSE;
   int saveStatus = TRUE;
@@ -408,10 +424,10 @@ int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typ
     if (sorting) {
       qsort(classementDuo, size/sizeof(*classementDuo), sizeof(*classementDuo), mytuplecmp);
     }
-    afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur);
+    afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur, nombreEnfants);
     if (saveStatus) {
       system("clear");
-			if (overCrashDetection(nombreEnfants, qualifOffset)) {
+			if (overCrashDetection(nombreEnfants, qualifOffset, copieMemoire)) {
 				printf("%s\n", "Trop de voitures se sont crashée, les qualifications ne sont plus possibles !  aucunes données n'a été sauvegardée");
 				return FALSE;
 			}
@@ -440,21 +456,21 @@ int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typ
   qsort(voiture_qualif, sizeof(voiture_qualif)/sizeof(*voiture_qualif), sizeof(*voiture_qualif), mytuplecmp);
   memcpy(classementDuo, voiture_qualif, sizeof(tuple*)*voiture_en_course);
 
-  afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur);
+  afficherTableauScoreQualif(classementDuo, *typeDeCourse, meilleursSecteur, nombreEnfants);
 
   if (saveStatus && *typeDeCourse == 6) {
     system("clear");
-		if (overCrashDetection(voiture_en_course, qualifOffset)) {
+		if (overCrashDetection(voiture_en_course, qualifOffset, copieMemoire)) {
 			printf("%s\n", "Trop de voitures se sont crashée, les qualifications ne sont plus possibles !  aucunes données n'a été sauvegardée");
 		}
 		else{
-				saveQuali(classementDuo, meilleursSecteur);
+				saveQuali(classementDuo, meilleursSecteur, nombreEnfants);
 		}
     return FALSE;
   }
   if (saveStatus) {
     system("clear");
-		if (overCrashDetection(voiture_en_course, qualifOffset)) {
+		if (overCrashDetection(voiture_en_course, qualifOffset, copieMemoire)) {
 			printf("%s\n", "Trop de voitures se sont crashée, les qualifications ne sont plus possibles !  aucunes données n'a été sauvegardée");
 			return FALSE;
 		}
@@ -481,17 +497,20 @@ int readQualifMemory(int nombreEnfants, int qualifOffset, voiture *shm, int *typ
 *	@param int* meilleurIdTemps					pointeur vers la memoire contenant meilleur temps pour
 *																			un tour
 *	@param sem_t** tableau_semaphores		le tableau contenant les semaphores
+* @param voiture* copieMemoire				pointeur vers la copie en memoire locale de la memoire partagee
+* @param voiture** classement					tableau de pointeurs contenant les copies des adresses memoires
+*																			de copieMemoire
 *
 *	@return int							 retourne les valeurs TRUE ou FALSE.  si FALSE est renvoye,
 *													 la course est finie
 *
 */
-int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores){
+int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meilleurIdTemps, sem_t **tableau_semaphores, voiture *copieMemoire, voiture **classement){
 
 	//zone critique
-	sm_wait(NOMBRE_DE_VOITURE, tableau_semaphores);
-	memcpy(copieMemoire, shm, sizeof(voiture)*NOMBRE_DE_VOITURE);
-	sm_post(NOMBRE_DE_VOITURE, tableau_semaphores);
+	sm_wait(nombreEnfants, tableau_semaphores);
+	memcpy(copieMemoire, shm, sizeof(voiture)*nombreEnfants);
+	sm_post(nombreEnfants, tableau_semaphores);
 
   int sorting = FALSE;
   int saveStatus = TRUE;
@@ -523,9 +542,12 @@ int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meil
   }
 
   if (sorting) {
-    qsort(classement, sizeof(classement)/sizeof(*classement), sizeof(*classement), mycoursecmp);
+		voiture *sort[nombreEnfants];
+		memcpy(sort, classement, sizeof(voiture *) * nombreEnfants);
+    qsort(sort, sizeof(sort)/sizeof(*sort), sizeof(*sort), mycoursecmp);
+		memcpy(classement, sort, sizeof(voiture *) * nombreEnfants);
   }
-  afficherTableauScoreCourse(classement, 7, meilleursSecteur, *meilleurId, *meilleurIdTemps);
+  afficherTableauScoreCourse(classement, 7, meilleursSecteur, *meilleurId, *meilleurIdTemps, nombreEnfants);
 
   if (saveStatus) {
     system("clear");
@@ -541,24 +563,27 @@ int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meil
 *	@param char* semid 							un nombre (sous forme de char) qui permet de retrouver
 *																	la memoire partagee a partir de shmat()
 *	@param char* mode								le type de course que la voiture doit effectuer
-																	valeurs possibles : P1, P2, P3, Q, Course
-* @param const int* numeroVoiture le tableau contenant les numeros (id) des voitures
-*																	a lancer dans la course
+*																	valeurs possibles : P1, P2, P3, Q, Course
 *	@param char* tableauNoms[]			tableau contenant les noms des semaphores
+* @param	int dataID							nombre permettant de retrouver l'emplacement en memoire
+*																	partagee des donnees de configuration
+* @param int *numeroDesVoitures		les ids des differentes voitures de la course
 *
 */
-void initFork(int incr,char *semid, char *mode,const int numeroVoiture[], char *tableauNoms[]){
+void initFork(int nombreEnfants,char *semid, char *mode, char *tableauNoms[], int dataID, int *numeroDesVoitures){
 
-  for (int i = 0; i < incr; i++) {
+  for (int i = 0; i < nombreEnfants; i++) {
 		printf("%s\n", "fork");
     if (fork() == 0) {
-      char pass[3];
-      char id[3];
+      char nombreFiliale[3];
+      char idData[10];
+			char idVoiture[4];
 
-      sprintf(pass, "%d", i);
-      sprintf(id, "%d", numeroVoiture[i]);
+      sprintf(nombreFiliale, "%d", i);
+      sprintf(idData, "%d", dataID);
+			sprintf(idVoiture, "%d", numeroDesVoitures[i]);
 
-      char *voiture[]= {"./voiture",semid,pass,mode,id,tableauNoms[i],NULL};
+      char *voiture[]= {"./voiture",semid,nombreFiliale,mode,idData,tableauNoms[i],idVoiture, NULL};
       execvp(voiture[0], voiture);
     }
   }
@@ -567,24 +592,27 @@ void initFork(int incr,char *semid, char *mode,const int numeroVoiture[], char *
 /**utilise les methodes de saveLoad.c pour sauvegarder les resultats des courses
 *	 determine le type de course dans laquelle on se trouve
 *
-*	@param int compteur 			le numero permettant de savoir le type de course que l'on a effectuee
-*	@param int nombreEnfants	le nombre de voitures dans la course
+*	@param int compteur 					le numero permettant de savoir le type de course que l'on a effectuee
+* @param data *programmeData		pointeur vers l'emplacement mémoire des données de configuration
+* @param voiture* copieMemoire	pointeur vers la copie en memoire locale de la memoire partagee
+* @param voiture** classement		tableau de pointeurs contenant les copies des adresses memoires
+*																de copieMemoire
 *
 */
-void save(int compteur, int nombreEnfants){
-	if (totalCrashDetection(nombreEnfants)) {
+void save(int compteur, data *programmeData, voiture *copieMemoire, voiture **classement){
+	if (totalCrashDetection(programmeData->nombreDeVoitures, copieMemoire)) {
 		printf("%s\n", "toutes les voitures se sont crashée, la séance n'est donc pas valide !  aucunes données n'a été sauvegardée");
 	}
 	else{
 		switch (compteur){
 	    case 1:
-	      saveEssai(compteur, P1, classement, meilleursSecteur);
+	      saveEssai(compteur, programmeData->p1, classement, meilleursSecteur, programmeData->nombreDeVoitures);
 	      break;
 	    case 2:
-	      saveEssai(compteur, P2, classement, meilleursSecteur);
+	      saveEssai(compteur, programmeData->p2, classement, meilleursSecteur, programmeData->nombreDeVoitures);
 	      break;
 	    case 3:
-	      saveEssai(compteur, P3, classement, meilleursSecteur);
+	      saveEssai(compteur, programmeData->p3, classement, meilleursSecteur, programmeData->nombreDeVoitures);
 	      break;
 	    default :
 	      printf("%s\n", "erreur dans la sauvegarde");
@@ -767,19 +795,20 @@ tuple * initTuple(voiture *local, voiture *memory){
 void initGagnant(gagnant *secteur) {
 	for (int i = 0; i < 3; i++) {
 		secteur[i].voitureId = -1;
-		secteur[i].voitureTemps = (int)INFINITY;
+		secteur[i].voitureTemps = INT_MAX;
 	}
 }
 
 /** permet de savoir si toutes les voitures sont crashee ou non
 *
-*	@param int nombreEnfants	le nombre de voitures dans la course
+*	@param int nombreEnfants			le nombre de voitures dans la course
+* @param voiture* copieMemoire	pointeur vers la copie en memoire locale de la memoire partagee
 *
-*	@return int 							booleen donnant le resultat : FALSE si jamais au moins une
-*														voiture n'est pas crashee, TRUE dans les autres cas
+*	@return int 									booleen donnant le resultat : FALSE si jamais au moins une
+*																voiture n'est pas crashee, TRUE dans les autres cas
 *
 */
-int totalCrashDetection(int nombreEnfants){
+int totalCrashDetection(int nombreEnfants, voiture *copieMemoire){
 
 	for (int i = 0; i < nombreEnfants; i++) {
 		if(!copieMemoire[i].crash){
@@ -793,15 +822,16 @@ int totalCrashDetection(int nombreEnfants){
 /** permet de savoir si le nombre de voiture crashee sont superieur ou non
 *		a un nombre defini de crash
 *
-*	@param int nombreEnfants	le nombre de voitures dans la course
-*	@param int overCrash			le nombre de crashs maximum tolere
+*	@param int nombreEnfants			le nombre de voitures dans la course
+*	@param int overCrash					le nombre de crashs maximum tolere
+* @param voiture* copieMemoire	pointeur vers la copie en memoire locale de la memoire partagee
 *
-*	@param int 								booleen donnant le resultat : FALSE si jamais il y a eu
-*														un nombre de crash egal ou inferieur a overCrash, TRUE
-*														dans les autres cas
+*	@return int 									booleen donnant le resultat : FALSE si jamais il y a eu
+*																un nombre de crash egal ou inferieur a overCrash, TRUE
+*																dans les autres cas
 *
 */
-int overCrashDetection(int nombreEnfants, int overCrash){
+int overCrashDetection(int nombreEnfants, int overCrash, voiture *copieMemoire){
 	int crashNumber = 0;
 
 	for (int i = 0; i < nombreEnfants; i++) {

@@ -27,41 +27,49 @@ int my_rand(int min, int max){
   return c;
 }
 
-/**
-* temps que fait une voiture sur un secteur
+/** temps que fait une voiture sur un secteur
 *
-*@param int taille1, int taille2
-*taille1 doit etre plus grand que taille2
+* @param int taille1, int taille2
+* @param int chance   la probabilite d'avoir un crash
+*
+*N.B. : taille1 doit etre plus grand que taille2
+*
 *@return int temp
 */
-int secteur(int taille1, int taille2){
+int secteur(int taille1, int taille2, int chance){
 
     int temp = 0;
 
-    if(crash()== FALSE){//si il n'y a pas de crash
+    if(crash(chance)== FALSE){//si il n'y a pas de crash
         temp = my_rand(taille1, taille2);//Generation du nombre aleatoire
         return temp;
     }
     return temp;//si il y a un crash
 }
 
-/**
+/** permet de savoir si la voiture c'est crashee
+*
+* @param int chance   la probabilite d'avoir un crash
 * return true(1) si il est plus petit que 49 sinon false(0)
 *
 * @return int retourne true(1) si il y a crash, sinon false(0)
 */
-int crash(){//methode pour determiner si il y a un crash
-  if(my_rand(1,5000) <= 25){
+int crash(int chance){//methode pour determiner si il y a un crash
+  if(my_rand(1,1000000) <= chance){
         return TRUE;
   }
   return FALSE;
 }
-/**
-*@return int retourne true(1) si il y a crash, sinon false(0)
+
+/** permet de savoir si la voiture doit aller au stand
+*
+* @param int chance   la probabilite d'avoir un crash
+*
+* @return int retourne true(1) si il y a crash, sinon false(0)
 *
 */
-int stand(){//passage au stand
-    if(my_rand(1,20) <= 2){//1 chance sur 10 d'aller au stand
+int stand(int chance){//passage au stand
+    if(my_rand(1,1000000) <= chance){
         return TRUE;
   }
   return FALSE;

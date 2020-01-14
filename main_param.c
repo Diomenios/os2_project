@@ -87,31 +87,6 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	/*printf("nombre : %d\n", programmeData->nombreDeVoitures);
-	printf("vitesse : %d\n", programmeData->vitesseVoiture);
-	printf("qualifOffset : %d\n", programmeData->qualifOffset);
-	printf("p1 : %d\n", programmeData->p1);
-	printf("p2 : %d\n", programmeData->p2);
-	printf("p3 : %d\n", programmeData->p3);
-	printf("q1 : %d\n", programmeData->q1);
-	printf("q2 : %d\n", programmeData->q2);
-	printf("q3 : %d\n", programmeData->q3);
-	printf("toursCourse : %d\n", programmeData->toursCourse);
-	printf("s1 : %d\n", programmeData->s1);
-	printf("s2 : %d\n", programmeData->s2);
-	printf("s3 : %d\n", programmeData->s3);
-	printf("dureeStand : %d\n", programmeData->dureeStand);
-	printf("chanceStand : %d\n", programmeData->chanceStand);
-	printf("chance de crash : %d\n", programmeData->chanceCrash);
-
-	for (int i = 0; i < programmeData->nombreDeVoitures; i++) {
-		printf("voiture numéro : %d = %d\n", i+1, numeroDesVoitures[i]);
-	}
-
-	free(numeroDesVoitures);
-	shmdt(programmeData);
-	exit(EXIT_SUCCESS);*/
-
 	/****** initialisation des variables *********/
 	sem_t *tabSem[programmeData->nombreDeVoitures];
 	int typeDeCourse = modeCourse(argv[1]);
@@ -121,7 +96,6 @@ int main(int argc, char *argv[]){
 	sem_t *tableau_semaphores[programmeData->nombreDeVoitures];
 	voiture copieMemoire[programmeData->nombreDeVoitures];
 	voiture *classement[programmeData->nombreDeVoitures];
-
 
 	//permet de determiner le type de course choisi par l'utilisateur
   if (typeDeCourse == -1) {
@@ -147,7 +121,6 @@ int main(int argc, char *argv[]){
     classement[i] = &copieMemoire[i];
   }
 
-	printf("%d\n", classement[0]->id);
   //convertis le semid en char* pour le passer aux fils
   //10 parce qu'un int n'est jamais plus grand qu'un nombre à 10 chiffres
   char pass[10];
@@ -347,7 +320,6 @@ int readMemory(int nombreEnfants, voiture *shm, int typeDeCourse, sem_t **tablea
     qsort(sort, sizeof(sort)/sizeof(*sort), sizeof(*sort), mycmp);
 		memcpy(classement, sort, sizeof(voiture *) * nombreEnfants);
   }
-	printf("%s\n", "affichage");
   afficherTableauScore(classement, typeDeCourse, meilleursSecteur, nombreEnfants);
 
   if (saveStatus) {
@@ -573,7 +545,6 @@ int readCourseMemory(int nombreEnfants, voiture *shm, int *meilleurId, int *meil
 void initFork(int nombreEnfants,char *semid, char *mode, char *tableauNoms[], int dataID, int *numeroDesVoitures){
 
   for (int i = 0; i < nombreEnfants; i++) {
-		printf("%s\n", "fork");
     if (fork() == 0) {
       char nombreFiliale[3];
       char idData[10];

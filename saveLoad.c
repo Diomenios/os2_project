@@ -19,9 +19,10 @@
 * @param voiture** classement pointeur de pointeurs permettant d'acceder aux voitures
 *															triees de l'essai venant de se terminer
 *	@param gagnant* secteurs		les trois voitures ayant ete les plus rapides dans un secteur
+* @param int nombreDeVoitures	nombre de voitures dans la course
 *
 */
-void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Module de sauvegarde de partie
+void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs, int nombreDeVoitures)//Module de sauvegarde de partie
 {
 	char* bufferTemps;
 	char bufferSaveName[50];
@@ -43,7 +44,7 @@ void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Modu
         //ecriture dans le fichier
 			fprintf(fichier, "classement des meilleurs temps de la periode d'essai %d\n",p);
 			fprintf(fichier, "temps de la période d'essai : %d\n",chrono);
-      for(i=0;i<NOMBRE_DE_VOITURE;i++){	//reutilisation du "i" pour economie memoire
+      for(i=0;i<nombreDeVoitures;i++){	//reutilisation du "i" pour economie memoire
 				//sprintf(bufferTemps, "%d", classement[i]->meilleurTemps);
 				sprintf(bufferID, "%d", classement[i]->id);
 				if (classement[i]->meilleurTemps == INT_MAX) {
@@ -56,7 +57,9 @@ void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Modu
 				}
       }
 			for (int i = 0; i < 3; i++) {
-				fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
+				bufferTemps = convertion(secteurs[i].voitureTemps);
+				fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %s \n", i+1,secteurs[i].voitureId, bufferTemps);
+				free(bufferTemps);
 			}
       fclose(fichier);//fermeture du fichier
     }
@@ -64,13 +67,14 @@ void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs)//Modu
 
 /** ecriture des resultats de la sceance de qualif dans un fichier .txt vierge
 *
-* @param tuple** classement pointeur de pointeurs permettant d'acceder a la liste des tuples
-* 													contenant les voitures classee des qualifications venant
-*														de se terminer
-*	@param gagnant* secteurs	les trois voitures ayant ete les plus rapides dans un secteur
+* @param tuple** classement 	pointeur de pointeurs permettant d'acceder a la liste des tuples
+* 														contenant les voitures classee des qualifications venant
+*															de se terminer
+*	@param gagnant* secteurs		les trois voitures ayant ete les plus rapides dans un secteur
+* @param int nombreDeVoitures	nombre de voitures dans la course
 *
 */
-void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de partie
+void saveQuali(tuple **classement, gagnant *secteurs, int nombreDeVoitures)//Module de sauvegarde de partie
 {
 	char buffervoiture[50];
 	char *time;
@@ -83,18 +87,20 @@ void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de p
       //ecriture dans le fichier
 		fprintf(fichier, "<>", NULL);
 
-		for (int i = 0; i <NOMBRE_DE_VOITURE-1; i++) {
+		for (int i = 0; i <nombreDeVoitures-1; i++) {
 			fprintf(fichier, "%d,", classement[i]->local->id);
 		}
-		fprintf(fichier, "%d", classement[NOMBRE_DE_VOITURE-1]->local->id);
+		fprintf(fichier, "%d", classement[nombreDeVoitures-1]->local->id);
 		fprintf(fichier, "</>\n", NULL);
 
 		fprintf(fichier, "classement des meilleurs temps des 3 période de qualification \n", NULL);
-		for(i=0;i<NOMBRE_DE_VOITURE;i++){//reutilisation du "i" pour economie memoire
-			fprintf(fichier, "%d : voiture n°%d \n", i+1, classement[i]->local->id);
+		for(i=0;i<nombreDeVoitures;i++){//reutilisation du "i" pour economie memoire
+			fprintf(fichier, "%d : voiture numéro %d \n", i+1, classement[i]->local->id);
 		}
 		for (int i = 0; i < 3; i++) {
-			fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %d \n", i+1,secteurs[i].voitureId, secteurs[i].voitureTemps);
+			time = convertion(secteurs[i].voitureTemps);
+			fprintf(fichier, "le meilleur temps pour le secteur %d a été fait par la voiture numéro %d et est de %s \n", i+1,secteurs[i].voitureId, time);
+			free(time);
 		}
 		fclose(fichier);//fermeture du fichier
 	}
@@ -108,9 +114,10 @@ void saveQuali(tuple **classement, gagnant *secteurs)//Module de sauvegarde de p
 *	@param int meilleurIdTemps	le meilleur temps pour faire un tour de circuit
 *	@param int meilleurId				le numero de la voiture ayant fait le meilleur temps pour un tour
 *															de circuit
+* @param int nombreDeVoitures	nombre de voitures dans la course
 *
 */
-void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int meilleurId)//Module de sauvegarde de partie
+void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int meilleurId, int nombreDeVoitures)//Module de sauvegarde de partie
 {
 	char bufferID[3];
 	char *time;
@@ -122,14 +129,14 @@ void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int 
     if (fichier != NULL){
         //ecriture dans le fichier
 				fprintf(fichier, "classement des meilleurs temps de la course\n");
-        for(i=0;i<NOMBRE_DE_VOITURE;i++){//reutilisation du "i" pour economie memoire
+        for(i=0;i<nombreDeVoitures;i++){//reutilisation du "i" pour economie memoire
 					sprintf(bufferID, "%d", classement[i]->id);
 					if (classement[i]->tempsTotal == INT_MAX) {
-						fprintf(fichier, "%d : voiture n°%s : %s\n", i+1, bufferID,"crashée");
+						fprintf(fichier, "%d : voiture numéro %s : %s\n", i+1, bufferID,"crashée");
 					}
 					else{
 						time = convertion(classement[i]->tempsTotal);
-	          fprintf(fichier, "%d : voiture n°%s : %s\n", i+1, bufferID,time);
+	          fprintf(fichier, "%d : voiture numéro %s : %s\n", i+1, bufferID,time);
 						free(time);
 					}
         }
@@ -152,14 +159,15 @@ void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int 
 
 /**chargement des resultats de la course depuis un fichier .txt deja rempli
 *
-* @param char* file nom du fichier a charger
+* @param char* file 					nom du fichier a charger
+* @param int nombreDeVoitures	nombre de voitures dans la course
 *
 * @return renvoie un pointeur vers un tableau contenant les id des voitures contenues
 *					dans le fichier
 */
-int *loading(char *file){
+int *loading(char *file, int nombreDeVoitures){
 
-	int *voitureNombre = (int *) malloc(sizeof(int)*NOMBRE_DE_VOITURE);
+	int *voitureNombre = (int *) malloc(sizeof(int)*nombreDeVoitures);
 	char buffer[250];
 
 	FILE* fichier = NULL;//creation du fichier text // initialisation du pointeur sur le fichier
@@ -169,6 +177,7 @@ int *loading(char *file){
 
 		return voitureNombre;
 	}
+
 	fgets(buffer, sizeof(buffer), fichier);
 
 	char *loop = buffer;

@@ -13,7 +13,6 @@
 #include "secteurs.h"
 #include "affichage.h"
 #include "circuit.h"
-#include "loading_config.h"
 
 /** simule un tour dans un circuit pour les qualif et les essais
 *
@@ -21,17 +20,11 @@
 *                           simulee par le processus
 * @param sem_t* sem         semaphore de la voiture permettant de garder les
 *                           zones d'ecriture a risque
-* @param int tempsS1        temps moyen pour le secteur 1
-* @param int tempsS2        temps moyen pour le secteur 2
-* @param int tempsS3        temps moyen pour le secteur 3
-* @param int tempsStand     temps durant lequel la voiture sera au stand
-* @param int chanceStand    probabilite que la voiture doive aller au stand
-* @param int chanceCrash    probabilite que la voiture se crashe
 *
 * @return int               retourne le temps total qu'a pris la voiture pour faire
 *                           un tour
 */
-int tour(voiture *maVoiture, sem_t *sem, int tempsS1, int tempsS2, int tempsS3, int tempsStand, int chanceStand, int chanceCrash){
+int tour(voiture *maVoiture, sem_t *sem){
 
     int total=0;                    //temps total pour le tour
     int s = 0;                      //temps pour un secteur
@@ -39,19 +32,8 @@ int tour(voiture *maVoiture, sem_t *sem, int tempsS1, int tempsS2, int tempsS3, 
 
     while (i<=3){
 
-        switch (i) {
-          case 1:
-            s = secteur(tempsS1-30, tempsS1+70, chanceCrash);
-            break;
-          case 2:
-            s = secteur(tempsS2-30,tempsS2+70, chanceCrash);
-            break;
-          case 3:
-            s = secteur(tempsS3-30,tempsS3+70, chanceCrash);
-            break;
-        }
-
-        sleep((s*10)/500);         // endormir le processus pendant s*10 milliseconde
+        s = secteur(100,250);
+        sleep((s*10)/1000);         // endormir le processus pendant s*10 milliseconde
         if (i == 1) {
           sem_wait(sem);
           refreshSecteurs(maVoiture);
@@ -72,14 +54,14 @@ int tour(voiture *maVoiture, sem_t *sem, int tempsS1, int tempsS2, int tempsS3, 
           sem_post(sem);
         }
         else if((i%3)==0){        //si il passe dans le secteur 3
-          if(stand(chanceStand)){
-            s += tempsStand;
+          if(stand()){
+            s += 150;
 
             sem_wait(sem);
             maVoiture->status=1;
             sem_post(sem);
 
-            sleep(tempsStand/100);         // endormir le processus pendant s*10 milliseconde
+            sleep(1.5);         // endormir le processus pendant s*10 milliseconde
 
           }
           sem_wait(sem);
@@ -102,26 +84,20 @@ int tour(voiture *maVoiture, sem_t *sem, int tempsS1, int tempsS2, int tempsS3, 
 
 /** simule le deroulement d'une session entiere d'une couse d'essais ou de qualification
 *
-* @param int chrono           le temps total que doit mettre au plus la voiture
-* @param voiture* mavoiture   pointeur vers l'emplacement memoire de la voiture
-*                             simulee par le processus
-* @param sem_t* sem           semaphore de la voiture permettant de garder les
-*                             zones d'ecriture a risque
-* @param data* programmeData  pointeur vers la zone de memoire partagee contenant les
-*                             donnee de parametrisation de la course
+* @param int chrono         le temps total que doit mettre au plus la voiture
+* @param voiture* mavoiture pointeur vers l'emplacement memoire de la voiture
+*                           simulee par le processus
+* @param sem_t* sem         semaphore de la voiture permettant de garder les
+*                           zones d'ecriture a risque
 *
 */
-void essaiLibreQuali(int chrono, voiture *maVoiture, sem_t *sem, data *programmeData){
-    int tempSecteur1 = (int)(programmeData->s1/programmeData->vitesseVoiture);
-    int tempSecteur2 = (int)(programmeData->s2/programmeData->vitesseVoiture);
-    int tempSecteur3 = (int)(programmeData->s3/programmeData->vitesseVoiture);
-
+void essaiLibreQuali(int chrono, voiture *maVoiture, sem_t *sem){
     int temps1 = 0;
     int temps2 = 0;
     int j = 1;
     do{
         //effectue un tour puis incremente le temps total que la voiture aura passe en course
-        temps1 = tour(maVoiture, sem, tempSecteur1, tempSecteur2, tempSecteur3, programmeData->dureeStand, programmeData->chanceStand, programmeData->chanceCrash);
+        temps1 = tour(maVoiture, sem);
         temps2 += temps1;
 
         if(temps1==0){
@@ -156,17 +132,11 @@ void essaiLibreQuali(int chrono, voiture *maVoiture, sem_t *sem, data *programme
 * @param int tourMax        nombre de tour max de la course
 * @param sem_t* sem         semaphore de la voiture permettant de garder les
 *                           zones d'ecriture a risque
-* @param int tempsS1        temps moyen pour le secteur 1
-* @param int tempsS2        temps moyen pour le secteur 2
-* @param int tempsS3        temps moyen pour le secteur 3
-* @param int tempsStand     temps durant lequel la voiture sera au stand
-* @param int chanceStand    probabilite que la voiture doive aller au stand
-* @param int chanceCrash    probabilite que la voiture se crashe
 *
 * @return int               retourne le temps total qu'a pris la voiture pour faire
 *                           un tour
 */
-int tourCourse(voiture *maVoiture, int numeroTour, int tourMax, sem_t *sem, int tempsS1, int tempsS2, int tempsS3, int tempsStand, int chanceStand, int chanceCrash){
+int tourCourse(voiture *maVoiture, int numeroTour, int tourMax, sem_t *sem){
 
     int total=0;                    //temps total
     int s = 0;                      //temps pour un secteur
@@ -174,19 +144,8 @@ int tourCourse(voiture *maVoiture, int numeroTour, int tourMax, sem_t *sem, int 
 
     while (i<=3){
 
-        switch (i) {
-          case 1:
-            s = secteur(tempsS1-30, tempsS1+70, chanceCrash);
-            break;
-          case 2:
-            s = secteur(tempsS2-30,tempsS2+70, chanceCrash);
-            break;
-          case 3:
-            s = secteur(tempsS3-30,tempsS3+70, chanceCrash);
-            break;
-        }
-
-        sleep((s*10)/500);         // endormir le processus pendant s*10 milliseconde
+        s = secteur(100,250);
+        sleep((s*10)/1000);         // endormir le processus pendant s*10 milliseconde
 
         if (i == 1) {
           sem_wait(sem);
@@ -209,15 +168,15 @@ int tourCourse(voiture *maVoiture, int numeroTour, int tourMax, sem_t *sem, int 
           maVoiture->tempSecteur2 = s;
         }
         else if((i%3)==0){              //si il passe dans le secteur 3
-          if(stand(chanceStand) || ((int)(tourMax/numeroTour) == 3 && maVoiture->passageAuStand < 1) || ((int)(tourMax/numeroTour) == 2 && maVoiture->passageAuStand < 2)){
-            s += tempsStand;
+          if(stand() || ((int)(tourMax/numeroTour) == 3 && maVoiture->passageAuStand < 1) || ((int)(tourMax/numeroTour) == 2 && maVoiture->passageAuStand < 2)){
+            s += 150;
 
             sem_wait(sem);
             maVoiture->status=1;
             maVoiture->passageAuStand +=1;
             sem_post(sem);
 
-            sleep(tempsStand/100);                  // endormir le processus pendant s*10 milliseconde
+            sleep(1.5);                  // endormir le processus pendant s*10 milliseconde
           }
           sem_wait(sem);
           maVoiture->status=2;
@@ -247,14 +206,9 @@ int tourCourse(voiture *maVoiture, int numeroTour, int tourMax, sem_t *sem, int 
 *                           simulee par le processus
 * @param sem_t* sem         semaphore de la voiture permettant de garder les
 *                           zones d'ecriture a risque
-* @param data* programmeData  pointeur vers la zone de memoire partagee contenant les
-*                             donnee de parametrisation de la course
 *
 */
-void Course(int tours, voiture *maVoiture, sem_t *sem, data *programmeData){
-    int tempSecteur1 = (int)(programmeData->s1/programmeData->vitesseVoiture);
-    int tempSecteur2 = (int)(programmeData->s2/programmeData->vitesseVoiture);
-    int tempSecteur3 = (int)(programmeData->s3/programmeData->vitesseVoiture);
+void Course(int tours, voiture *maVoiture, sem_t *sem){
 
     int temps1 = 0;
     int temps2 = -1;
@@ -262,7 +216,7 @@ void Course(int tours, voiture *maVoiture, sem_t *sem, data *programmeData){
 
     do{
         //effectue un tour puis incremente le temps total que la voiture aura passe en course
-        temps1 = tourCourse(maVoiture, maVoiture->tours, tours, sem, tempSecteur1, tempSecteur2, tempSecteur3, programmeData->dureeStand, programmeData->chanceStand, programmeData->chanceCrash);
+        temps1 = tourCourse(maVoiture, maVoiture->tours, tours, sem);
         temps2 += temps1;
 
 

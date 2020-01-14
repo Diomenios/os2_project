@@ -8,9 +8,8 @@
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
 * @param gagnant* secteurs		    les trois voitures ayant ete les plus rapides dans un secteur
-* @param int nombreDeVoitures   le nombre de voiture dans la course
 *
-*/void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs, int nombreDeVoitures);
+*/void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs);
 
 /* Fonction d'affichage  les qualifications : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
@@ -19,11 +18,10 @@
 * @param int manche          un numero indiquant la partie de la serie de course dans laquelle
 *                           on est
 * @param gagnant* secteurs  les trois voitures ayant ete les plus rapides dans un secteur
-* @param int nombreDeVoitures   le nombre de voiture dans la course
 *
 * N.B: tuple utilise  gestion des pointeurs entre les pointeurs de la memoire locale et partagee
 */
-void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteurs, int nombreDeVoitures);
+void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteurs);
 
 /* Fonction d'affichage  la course : permet de creer puis d'afficher
 *         le tableau dans le terminal a l'aide d'une serie de concatenantions
@@ -35,10 +33,9 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
 *	@param int meilleurIdTemps	  le meilleur temps pour faire un tour de circuit
 *	@param int meilleurId				  le numero de la voiture ayant fait le meilleur temps pour un tour
 *															  de circuit
-* @param int nombreDeVoitures   le nombre de voiture dans la course
 *
 */
-void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps, int nombreDeVoitures);
+void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps);
 
 /** Permet de generer et de remplir un case pour le tableau.
 *  ATTENTION : necessite de faire un free apres utilisation car on utilise un malloc

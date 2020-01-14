@@ -12,6 +12,7 @@
 #include "secteurs.h"
 #include "voiture.h"
 #include "constantes.h"
+#include "loading_config.h"
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
 /*
@@ -50,13 +51,15 @@ int main(int argc, char* argv[]){
 
   sem_t *sem;
   voiture *shm;
+  data *programmeData;
   int id;
   //initialisation des differentes variables
   nombreFiliale = atoi(argv[2]);
-  id = atoi(argv[4]);
   sem = sem_open(argv[5], O_CREAT);
+  id = atoi(argv[6]);
 
   shm = (voiture*) shmat(atoi(argv[1]), NULL, 0);
+  programmeData = (data *) shmat(atoi(argv[4]), NULL, 0);
 
   sem_wait(sem);
   initVoiture(2, 0, id, shm);
@@ -64,31 +67,31 @@ int main(int argc, char* argv[]){
 /********************  Les periodes d'essais ********************************/
 
   if (strcmp(argv[3], "p1") == 0) {
-    essaiLibreQuali(P1, &shm[nombreFiliale], sem);
+    essaiLibreQuali(programmeData->p1, &shm[nombreFiliale], sem, programmeData);
   }
   else if (strcmp(argv[3], "p2") == 0) {
-    essaiLibreQuali(P2, &shm[nombreFiliale], sem);
+    essaiLibreQuali(programmeData->p2, &shm[nombreFiliale], sem, programmeData);
   }
   else if (strcmp(argv[3], "p3") == 0) {
-    essaiLibreQuali(P3, &shm[nombreFiliale], sem);
+    essaiLibreQuali(programmeData->p3, &shm[nombreFiliale], sem, programmeData);
   }
 
 /********************** Les periodes de qualification ***********************/
 
   else if (strcmp(argv[3], "q") == 0) {
-    essaiLibreQuali(Q1, &shm[nombreFiliale], sem);
+    essaiLibreQuali(programmeData->q1, &shm[nombreFiliale], sem, programmeData);
     attenteQuali(shm, id, sem);
 
-    essaiLibreQuali(Q2, &shm[nombreFiliale], sem);
+    essaiLibreQuali(programmeData->q2, &shm[nombreFiliale], sem, programmeData);
     attenteQuali(shm, id, sem);
 
-    essaiLibreQuali(Q3, &shm[nombreFiliale], sem);
+    essaiLibreQuali(programmeData->q3, &shm[nombreFiliale], sem, programmeData);
   }
 
 /************************** La course principale ****************************/
 
   else{
-    Course(TOURS_COURSE, &shm[nombreFiliale], sem);
+    Course(programmeData->toursCourse, &shm[nombreFiliale], sem, programmeData);
   }
 
   /*************************** Fin du programme *******************************/
@@ -96,6 +99,7 @@ int main(int argc, char* argv[]){
   shm[nombreFiliale].status = 0;
 
   shmdt(shm);
+  shmdt(programmeData);
   exit(EXIT_SUCCESS);
 }
 

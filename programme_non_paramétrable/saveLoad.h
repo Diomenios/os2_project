@@ -15,21 +15,19 @@
 * @param voiture** classement pointeur de pointeurs permettant d'acceder aux voitures
 *															triees de l'essai venant de se terminer
 *	@param gagnant* secteurs		les trois voitures ayant ete les plus rapides dans un secteur
-* @param int nombreDeVoitures	nombre de voitures dans la course
 *
 */
-void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs, int nombreDeVoitures);//Module de sauvegarde de partie
+void saveEssai(int p, int chrono, voiture **classement, gagnant *secteurs);//Module de sauvegarde de partie
 
 /** ecriture des resultats de la sceance de qualif dans un fichier .txt vierge
 *
-* @param tuple** classement    pointeur de pointeurs permettant d'acceder a la liste des tuples
-* 													   contenant les voitures classee des qualifications venant
-*														   de se terminer
-*	@param gagnant* secteurs	   les trois voitures ayant ete les plus rapides dans un secteur
-* @param int nombreDeVoitures	 nombre de voitures dans la course
+* @param tuple** classement pointeur de pointeurs permettant d'acceder a la liste des tuples
+* 													contenant les voitures classee des qualifications venant
+*														de se terminer
+*	@param gagnant* secteurs	les trois voitures ayant ete les plus rapides dans un secteur
 *
 */
-void saveQuali(tuple **classement, gagnant *secteurs, int nombreDeVoitures);
+void saveQuali(tuple **classement, gagnant *secteurs);
 
 /**ecriture des resultats de la course dans un fichier .txt vierge
 *
@@ -39,19 +37,17 @@ void saveQuali(tuple **classement, gagnant *secteurs, int nombreDeVoitures);
 *	@param int meilleurIdTemps	le meilleur temps pour faire un tour de circuit
 *	@param int meilleurId				le numero de la voiture ayant fait le meilleur temps pour un tour
 *															de circuit
-* @param int nombreDeVoitures	nombre de voitures dans la course
 *
 */
-void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int meilleurId, int nombreDeVoitures);
+void saveCourse(voiture **classement, gagnant *secteurs, int meilleurTemps, int meilleurId);
 
 /**chargement des resultats de la course depuis un fichier .txt deja rempli
 *
-* @param char* file            nom du fichier a charger
-* @param int nombreDeVoitures	 nombre de voitures dans la course
+* @param char* file nom du fichier a charger
 *
-* @return renvoie un pointeur  vers un tableau contenant les id des voitures contenues
+* @return renvoie un pointeur vers un tableau contenant les id des voitures contenues
 *					dans le fichier
 */
-int *loading(char *file, int nombreDeVoitures);
+int *loading(char *file);
 
 #endif // SAVELOAD_H_INCLUDED

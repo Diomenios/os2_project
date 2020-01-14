@@ -19,16 +19,15 @@
 * @param  int manche            un numero indiquant la partie de la serie de course
 *                               dans laquelle on est
 * @param gagnant* secteurs		    les trois voitures ayant ete les plus rapides dans un secteur
-* @param int nombreDeVoitures   le nombre de voiture dans la course
 *
 */
-void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs, int nombreDeVoitures){
+void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|------------|\n";
   char titreTableau[] =  "| Période     |  S1   |  S2   |  S3   | status | tour | temps-tour |\n";
   char *titrePeriode = creationManche(manche);
 
-  char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(nombreDeVoitures*2+5));
+  char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(NOMBRE_DE_VOITURE*2+5));
 
   strcpy(buffer, "|------------------------------------------------------------------|\n");
   strcat(buffer, titrePeriode);
@@ -40,7 +39,7 @@ void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs, 
 
   //  creation des lignes du tableau les unes apres les autres, et les ajoutes
   //  a la fin du buffer
-  for (int i = 0; i < nombreDeVoitures; i++) {
+  for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
     char *recup;
     char *ligne = calloc(1, strlen(lineSeparator));
     strcpy(ligne, "| voiture");
@@ -112,17 +111,16 @@ void afficherTableauScore(voiture *classement[], int manche, gagnant *secteurs, 
 * @param int manche          un numero indiquant la partie de la serie de course dans laquelle
 *                           on est
 * @param gagnant* secteurs  les trois voitures ayant ete les plus rapides dans un secteur
-* @param int nombreDeVoitures   le nombre de voiture dans la course
 *
 * N.B: tuple utilise  gestion des pointeurs entre les pointeurs de la memoire locale et partagee
 */
-void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteurs, int nombreDeVoitures){
+void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteurs){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|------------|\n";
   char titreTableau[] =  "| Période     |  S1   |  S2   |  S3   | status | tour | temps-tour |\n";
   char *titrePeriode = creationManche(manche);
 
-  char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(nombreDeVoitures*2+5));
+  char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(NOMBRE_DE_VOITURE*2+5));
 
   strcpy(buffer, "|------------------------------------------------------------------|\n");
   strcat(buffer, titrePeriode);
@@ -134,7 +132,7 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
 
   //  creation des lignes du tableau les unes apres les autres, et les ajoutes
   //  a la fin du buffer
-  for (int i = 0; i < nombreDeVoitures; i++) {
+  for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
     char *recup;
     char *ligne = calloc(1, strlen(lineSeparator));
     strcpy(ligne, "| voiture");
@@ -209,16 +207,15 @@ void afficherTableauScoreQualif(tuple *classement[], int manche, gagnant *secteu
 *	@param int meilleurIdTemps	  le meilleur temps pour faire un tour de circuit
 *	@param int meilleurId				  le numero de la voiture ayant fait le meilleur temps pour un tour
 *															  de circuit
-* @param int nombreDeVoitures   le nombre de voiture dans la course
 *
 */
-void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps, int nombreDeVoitures){
+void afficherTableauScoreCourse(voiture *classement[], int manche, gagnant *secteurs, int meilleurId, int meilleurIdTemps){
   system("clear");
   char lineSeparator[] = "|-------------|-------|-------|-------|--------|------|---------|\n";
   char titreTableau[] =  "| Période     |  S1   |  S2   |  S3   | status | tour |  temps  |\n";
   char *titrePeriode = creationManche(manche);
 
-  char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(nombreDeVoitures*2+5));
+  char *buffer = (char*) calloc(1, LONGUEUR_DU_TABLEAU*(NOMBRE_DE_VOITURE*2+5));
 
   strcpy(buffer, "|---------------------------------------------------------------|\n");
 strcat(buffer, titrePeriode);
@@ -230,7 +227,7 @@ strcat(buffer, titrePeriode);
 
   //  creation des lignes du tableau les unes apres les autres, et les ajoutes
   //  a la fin du buffer
-  for (int i = 0; i < nombreDeVoitures; i++) {
+  for (int i = 0; i < NOMBRE_DE_VOITURE; i++) {
     char *recup;
     char *ligne = calloc(1, strlen(lineSeparator));
     strcpy(ligne, "| voiture");

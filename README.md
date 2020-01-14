@@ -1,14 +1,8 @@
-#todo :
+<center> <h1> Projet OS 2 </h1></center>
 
-faire un beau readme !
+## Introduction :
+Ce programme a été écrit en C.  Il a pour but de simuler une course entre un certains nombre de voitures.  Plusieurs types de courses différentes ont été implémentées, et un fichier de configuration texte permet de changer plusieurs paramètres de bases des courses.
 
+## Les différentes parties :
 
-
-/!\ faire une version porte du programme sur Windows /!\ 
-
-
-changer le fork en CreateProcess
-changer les sleep en Sleep + conversion des secondes en nanoseconde
-ajouter #include "windows.h" à tout les .c
-
-/!\ à tester /!\ 
+actuellement en travaux
